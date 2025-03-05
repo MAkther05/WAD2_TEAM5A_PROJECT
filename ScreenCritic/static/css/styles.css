@@ -1,0 +1,88 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Navbar Styling */
+nav {
+    background: #ADD8E6;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Left Section (Logo + Links) */
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 50px;
+    margin-right: 30px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.nav-links li {
+    display: inline-block;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Right Section (Search + Notifications + Login) */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Search Bar */
+.search-bar {
+    padding: 8px;
+    width: 300px;
+    border-radius: 15px;
+    border: 1px solid #999;
+}
+
+/* Notification Icon */
+.notification-icon {
+    width: 24px;
+    height: auto;
+    cursor: pointer;
+}
+
+/* Login Button */
+.login-btn {
+    background: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    border: 1px solid black;
+}
+
+/* Footer Styling */
+.footer {
+    background: #ADD8E6;
+    color: black;
+    text-align: center;
+    padding: 15px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}

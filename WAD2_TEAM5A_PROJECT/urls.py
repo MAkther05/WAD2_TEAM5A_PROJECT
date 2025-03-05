@@ -20,6 +20,6 @@ from ScreenCritic import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('ScreenCritic/', include('ScreenCritic.urls')),
     path('admin/', admin.site.urls),
+    path('screencritic/', include('ScreenCritic.urls'))
 ]

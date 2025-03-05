@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScreenCritic</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="nav-left">
+            <a href="{% url 'home' %}">
+                <img src="{% static 'images/logo.png' %}" alt="ScreenCritic Logo" class="logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="#">Movies</a></li>
+                <li><a href="#">TV Shows</a></li>
+                <li><a href="#">Games</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-right">
+            <input type="text" class="search-bar" placeholder="Search">
+            <a href="#">
+                <img src="{% static 'images/bell.png' %}" alt="Notifications" class="notification-icon">
+            </a>
+            <a href="#" class="login-btn">Login / Signup</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>ScreenCritic made 2025</p>
+    </footer>
+
+</body>
+</html>
