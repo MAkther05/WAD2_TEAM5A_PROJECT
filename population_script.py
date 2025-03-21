@@ -120,15 +120,14 @@ def fetch_games(url, type_label):
             try:
                 details_response = requests.get(f"https://api.rawg.io/api/games/{game['id']}?key={RAWG_API_KEY}") #make a request for the specific game so we can get description
                 description = None
+                developer_str = 'Unknown'
                 genre_names = []
                 if details_response.status_code == 200:
                     details = details_response.json()
                     description = details.get("description")
                     genre_names = [genre["name"] for genre in details.get("genres", [])]
-
-                
-                developers = [dev['name'] for dev in game.get('developers', [])] #get developer information
-                developer_str = ', '.join(developers) if developers else 'Unknown'
+                    developers = [dev['name'] for dev in details.get('developers', [])]
+                    developer_str = ', '.join(developers) if developers else 'Unknown'
                 
                 media = Media.objects.create(
                     title=game['name'],
