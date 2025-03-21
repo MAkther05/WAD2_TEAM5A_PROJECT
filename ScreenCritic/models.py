@@ -28,6 +28,7 @@ class Media(models.Model):
     duration = models.IntegerField(blank=True, null=True)
     release_date = models.DateTimeField()
     genres = models.ManyToManyField(Genre, related_name="media")
+    creator = models.CharField(max_length=255, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug: #only generate slug if not already defined

@@ -21,7 +21,7 @@ RAWG_API_KEY = env("RAWG_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3/discover"
 RAWG_BASE_URL = "https://api.rawg.io/api/games"
 
-def fetch_paginated_data(url, type_label, total_needed=100, max_per_page=20):
+def fetch_paginated_data(url, type_label, total_needed=200, max_per_page=20):
     print(f"Fetching {total_needed} {type_label} from API...")
 
     results = []
@@ -51,71 +51,99 @@ def fetch_tv_shows(url, type_label):
     tv_shows = fetch_paginated_data(url, type_label) #get a list of tv show dicts
 
     for show in tv_shows:
-        media, _ = Media.objects.get_or_create(
-            title=show["name"],
-            type="TV Show",
-            description=show.get("overview"),
-            cover_image=f"https://image.tmdb.org/t/p/original{show['poster_path']}" if show.get("poster_path") else None,
-            duration=None, #no duration as episodes may be inconsistent length
-            release_date=make_aware(datetime.strptime(show["first_air_date"], "%Y-%m-%d")) if show.get("first_air_date") else None
-        )
+        if show.get('name') and show.get('first_air_date'):
+            try:
+                show_details = requests.get(f"https://api.themoviedb.org/3/tv/{show['id']}?api_key={TMDB_API_KEY}").json() #get creator information
+                creators = [person['name'] for person in show_details.get('created_by', [])]
+                creator_str = ', '.join(creators) if creators else 'Unknown'
+                
+                media = Media.objects.create(
+                    title=show['name'],
+                    type='TV Show',
+                    description=show.get('overview', ''),
+                    cover_image=f"https://image.tmdb.org/t/p/original{show['poster_path']}" if show.get('poster_path') else None,
+                    release_date=make_aware(datetime.strptime(show['first_air_date'], '%Y-%m-%d')),
+                    creator=creator_str
+                )
 
-        genre_names = [genre["name"] for genre in show.get("genres", [])]
-        genres = Genre.objects.filter(name__in=genre_names)
-        media.genres.set(genres)
-
-        print(f"Created TV Show: {show['name']}")
+                genre_names = [genre["name"] for genre in show.get("genres", [])]
+                genres = Genre.objects.filter(name__in=genre_names)
+                media.genres.set(genres)
+                
+                print(f"Created TV Show: {media.title}")
+            except Exception as e:
+                print(f"Failed to create TV Show {show.get('name')}: {str(e)}")
 
 def fetch_movies(url, type_label):
     movies = fetch_paginated_data(url, type_label) #get a list of movie dicts
 
     for movie in movies:
-        details_response = requests.get(f"https://api.themoviedb.org/3/movie/{movie['id']}?api_key={TMDB_API_KEY}") #make a request for the specific movie so we can get duration
-        runtime = None
-        if details_response.status_code == 200:
-            details = details_response.json()
-            runtime = details.get("runtime")
-            genre_names = [genre["name"] for genre in details.get("genres", [])]
+        if movie.get('title') and movie.get('release_date'):
+            try:
+                details_response = requests.get(f"https://api.themoviedb.org/3/movie/{movie['id']}?api_key={TMDB_API_KEY}") #make a request for the specific movie so we can get duration
+                runtime = None
+                if details_response.status_code == 200:
+                    details = details_response.json()
+                    runtime = details.get("runtime")
+                    genre_names = [genre["name"] for genre in details.get("genres", [])]
 
-        media, _ = Media.objects.get_or_create(
-            title=movie["title"],
-            type="Movie",
-            description=movie.get("overview"),
-            cover_image=f"https://image.tmdb.org/t/p/original{movie['poster_path']}" if movie.get("poster_path") else None,
-            duration=runtime,
-            release_date=make_aware(datetime.strptime(movie["release_date"], "%Y-%m-%d")) if movie.get("release_date") else None
-        )
+                credits_response = requests.get(f"https://api.themoviedb.org/3/movie/{movie['id']}/credits?api_key={TMDB_API_KEY}") #make a request for the specific movie so we can get creator
+                director_str = 'Unknown'
+                if credits_response.status_code == 200:
+                    credits_data = credits_response.json()
+                    crew = credits_data.get('crew', [])
+                    directors = [person['name'] for person in crew if person['job'] == 'Director']
+                    director_str = ', '.join(directors) if directors else 'Unknown'
+                
+                media = Media.objects.create(
+                    title=movie['title'],
+                    type='Movie',
+                    description=movie.get('overview', ''),
+                    cover_image=f"https://image.tmdb.org/t/p/original{movie['poster_path']}" if movie.get('poster_path') else None,
+                    duration=runtime,
+                    release_date=make_aware(datetime.strptime(movie['release_date'], '%Y-%m-%d')),
+                    creator=director_str
+                )
 
-        genres = Genre.objects.filter(name__in=genre_names)
-        media.genres.set(genres)
+                genres = Genre.objects.filter(name__in=genre_names)
+                media.genres.set(genres)
 
-        print(f"Created Movie: {movie['title']}")
+                print(f"Created Movie: {media.title}")
+            except Exception as e:
+                print(f"Failed to create Movie {movie.get('title')}: {str(e)}")
 
 def fetch_games(url, type_label):
     games = fetch_paginated_data(url, type_label) #get a list of game dicts
 
     for game in games:
-        details_response = requests.get(f"https://api.rawg.io/api/games/{game['id']}?key={RAWG_API_KEY}") #make a request for the specific game so we can get description
-        description = None
-        genre_names = []
-        if details_response.status_code == 200:
-            details = details_response.json()
-            description = details.get("description")
-            genre_names = [genre["name"] for genre in details.get("genres", [])]
+        if game.get('name') and game.get('released'):
+            try:
+                details_response = requests.get(f"https://api.rawg.io/api/games/{game['id']}?key={RAWG_API_KEY}") #make a request for the specific game so we can get description
+                description = None
+                developer_str = 'Unknown'
+                genre_names = []
+                if details_response.status_code == 200:
+                    details = details_response.json()
+                    description = details.get("description")
+                    genre_names = [genre["name"] for genre in details.get("genres", [])]
+                    developers = [dev['name'] for dev in details.get('developers', [])]
+                    developer_str = ', '.join(developers) if developers else 'Unknown'
+                
+                media = Media.objects.create(
+                    title=game['name'],
+                    type='Game',
+                    description=description,
+                    cover_image=game.get('background_image'),
+                    release_date=make_aware(datetime.strptime(game['released'], '%Y-%m-%d')),
+                    creator=developer_str
+                )
 
-        media, _ = Media.objects.get_or_create(
-            title=game["name"],
-            type="Game",
-            description=description,
-            cover_image=game["background_image"] if game.get("background_image") else None,
-            duration=None, #games don’t have durations
-            release_date=make_aware(datetime.strptime(game["released"], "%Y-%m-%d")) if game.get("released") else None
-        )
-
-        genres = Genre.objects.filter(name__in=genre_names)
-        media.genres.set(genres)
-
-        print(f"Created Game: {game['name']}")
+                genres = Genre.objects.filter(name__in=genre_names)
+                media.genres.set(genres)
+                
+                print(f"Created Game: {media.title}")
+            except Exception as e:
+                print(f"Failed to create Game {game.get('name')}: {str(e)}")
 
 def create_users():
     print("Creating 50 Users...")
@@ -142,38 +170,53 @@ def create_users():
                 UserProfile.objects.create(user=user, email=user.email)
                 print(f"Created User: {username}")
 
-def create_reviews():
-    print("Creating Reviews...")
+def create_reviews_and_likes():
+    print("Creating Reviews and Likes...")
     users = list(User.objects.all())
     media_items = list(Media.objects.all())
+    
+    review_texts = [
+        "Absolutely loved it! A masterpiece that exceeded all expectations.",
+        "Decent entertainment, but nothing groundbreaking.",
+        "Had potential but fell short in execution.",
+        "One of the best experiences I've had, highly recommend!",
+        "Interesting concept but could have been better executed.",
+        "A must-see/play/watch for fans of the genre!",
+        "Not my cup of tea, but I can see why others might enjoy it.",
+        "Surprisingly good, went in with low expectations.",
+        "Could have been better, but still enjoyable.",
+        "Outstanding performance by the creator(s)!",
+        "Worth checking out if you're a fan of similar works.",
+        "A bit disappointing considering the hype.",
+        "Solid entertainment from start to finish.",
+        "Really impressed with the attention to detail.",
+        "Mixed feelings about this one."
+    ]
 
-    for _ in range(100):  #creates 100 random reviews
-        user = random.choice(users)
-        media = random.choice(media_items)
-        rating = random.randint(1, 5)
-        review_text = f"This is a review for {media.title} by {user.username}."
+    for media in media_items:
+        print(f"Creating Reviews and Likes for: {media.title}")
+        num_reviews = random.randint(5, 10)  #random number between 5 and 10
+        media_reviewers = random.sample(users, num_reviews) #create unique set of users for this 
 
-        Review.objects.create(
-            user=user,
-            media=media,
-            review=review_text,
-            rating=rating
-        )
+        for user in media_reviewers:
+            rating = random.randint(1, 5)
+            review_text = random.choice(review_texts)
 
-    print("Reviews Created.")
+            review = Review.objects.create(
+                user=user,
+                media=media,
+                review=review_text,
+                rating=rating
+            )
 
-def create_review_likes():
-    print("Creating Review Likes...")
+            num_likes = random.randint(0, 10) #random number of likes for each review (between 0 and 25)
+            liking_users = random.sample(users, num_likes) #get random users to like this review
 
-    users = list(User.objects.all())
-    reviews = list(Review.objects.all())
+            for liker in liking_users:
+                ReviewLike.objects.get_or_create(user=liker, review=review)
 
-    for _ in range(200):  #200 random likes
-        user = random.choice(users)
-        review = random.choice(reviews)
-        ReviewLike.objects.get_or_create(user=user, review=review)
+    print("Reviews and Likes Created.")
 
-    print("Review Likes Created.")
 
 def create_subscriptions():
     print("Creating Subscriptions...")
@@ -234,8 +277,7 @@ if __name__ == "__main__":
     fetch_movies(f"{TMDB_BASE_URL}/movie?api_key={TMDB_API_KEY}&sort_by=popularity.desc&primary_release_year=2025", "Upcoming Movies")
     fetch_games(f"{RAWG_BASE_URL}?key={RAWG_API_KEY}&ordering=-released&dates=2000-01-01,2024-12-31", "Past Games")
     fetch_games(f"{RAWG_BASE_URL}?key={RAWG_API_KEY}&ordering=-added&dates=2025-01-01,2025-12-31", "Upcoming Games")
-    create_reviews()
     create_subscriptions()
-    create_review_likes()
+    create_reviews_and_likes()
     create_user_favorite_genres()
     print("Database Populated Successfully!")

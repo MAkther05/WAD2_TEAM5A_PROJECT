@@ -1,0 +1,146 @@
+.title-page-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+.media-main {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* LEFT SIDE */
+.media-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-basis: 40%;
+    flex-shrink: 0;
+}
+
+.media-left img {
+    width: 300px;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.media-text {
+    text-align: center;
+}
+
+.media-text h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.rating-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+
+.review-btn {
+    background-color: #3366ff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* RIGHT SIDE */
+.media-right {
+    flex: 1;
+    min-width: 400px;
+}
+
+.description {
+    margin-bottom: 30px;
+    max-width: 650px;
+}
+
+.reviews-section {
+    margin-top: 30px;
+}
+
+.reviews-scroll {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.review-card {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.review-user {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.review-date {
+    font-size: 14px;
+}
+
+.review-card p {
+    margin: 5px 0;
+}
+
+
+/* People also enjoyed */
+.recommended-section {
+    margin-top: 40px;
+}
+
+.recommended-scroll {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
+}
+
+.recommended-item {
+    text-align: center;
+    margin-right: 15px;
+    flex: 0 0 auto;
+}
+
+.recommended-item img {
+    width: 120px; /* Adjust as needed */
+    height: 180px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.recommended-item a {
+    text-decoration: none;
+    color: black;
+}
+
