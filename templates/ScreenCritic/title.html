@@ -1,0 +1,106 @@
+{% extends "ScreenCritic/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title_block %}
+<title>{{ media.title }} - ScreenCritic</title>
+<link rel="stylesheet" href="{% static 'css/title.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="title-page-container">
+    <div class="media-main">
+        <!-- LEFT SIDE: Image, Title, Rating Stats -->
+        <div class="media-left">
+            <img src="{{ media.cover_image }}" alt="{{ media.title }}">
+            <div class="media-text">
+                <h1>{{ media.title }}</h1>
+                <p>by {{ media.creator|default:"Unknown" }}</p>
+                <div class="rating-summary">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= average_rating %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                    <span>{{ average_rating|floatformat:1 }}</span> • 
+                    <span>{{ total_ratings }} ratings</span> • 
+                    <span>{{ text_reviews_count }} reviews</span>
+                </div>                                 
+                <button class="review-btn">Review</button>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Description and Reviews -->
+        <div class="media-right">
+            <div class="description">
+                <h2>Description</h2>
+                <p>{{ media.description|default:"No description available." }}</p>
+            </div>
+
+            <p><strong>Release Date:</strong> {{ media.release_date|date:"F d, Y" }}</p>
+
+            <div class="reviews-section">
+                <h2>Community Ratings and Reviews</h2>
+                <div class="sort-options">
+                    <form method="get">
+                        SORT BY:
+                        <select name="sort" onchange="this.form.submit()">
+                            <option value="default" {% if current_sort == 'default' %}selected{% endif %}>Most Liked</option>
+                            <option value="username" {% if current_sort == 'username' %}selected{% endif %}>Username (A-Z)</option>
+                            <option value="recent" {% if current_sort == 'recent' %}selected{% endif %}>Most Recent</option>
+                        </select>
+                    </form>
+                </div>
+
+                <div class="reviews-scroll">
+                    {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-user">
+                                {% if review.user.userprofile.profile_picture %}
+                                    <img src="{{ review.user.userprofile.profile_picture.url }}" alt="{{ review.user.username }}'s Profile Picture" class="profile-pic">
+                                {% else %}
+                                    <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Picture" class="profile-pic">
+                                {% endif %}
+                                <strong>{{ review.user.username }}</strong>
+                            </div>
+                            <span class="review-date">{{ review.date|date:"M d, Y" }}</span>
+                        </div>
+                        <div>
+                            Rated:
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    ★
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p>Comment: {{ review.review }}</p>
+                        <p>Likes ❤️ {{ review.reviewlike_set.count }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PEOPLE ALSO ENJOYED -->
+    <div class="recommended-section">
+        <h2>People also enjoyed</h2>
+        <div class="recommended-scroll">
+            {% for media_item in recommended_media %}
+            <div class="recommended-item">
+                <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                    <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                    <p>{{ media_item.title }}</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

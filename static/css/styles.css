@@ -82,7 +82,7 @@ nav {
     color: black;
     text-align: center;
     padding: 15px;
-    position: absolute;
+    position: relative;
     bottom: 0;
     width: 100%;
 }
