@@ -20,6 +20,8 @@ def media_detail(request, slug, media_type):
         reviews = reviews.order_by('user__username', '-date')
     elif sort_by == 'recent': #most recent first
         reviews = reviews.order_by('-date')
+    elif sort_by == 'rating': #highest rating first
+        reviews = reviews.order_by('-rating', '-date')
     else:  #default is most liked
         reviews = reviews.order_by('-likes_count', '-date')
 

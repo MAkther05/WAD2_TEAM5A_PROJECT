@@ -53,9 +53,10 @@
                     <form method="get">
                         SORT BY:
                         <select name="sort" onchange="this.form.submit()">
-                            <option value="default" {% if current_sort == 'default' %}selected{% endif %}>Most Liked</option>
-                            <option value="username" {% if current_sort == 'username' %}selected{% endif %}>Username (A-Z)</option>
+                            <option value="likes" {% if current_sort == 'likes' %}selected{% endif %}>Most Liked</option>
+                            <option value="username" {% if current_sort == 'username' %}selected{% endif %}>Username</option>
                             <option value="recent" {% if current_sort == 'recent' %}selected{% endif %}>Most Recent</option>
+                            <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>Top Rated</option>
                         </select>
                     </form>
                 </div>
