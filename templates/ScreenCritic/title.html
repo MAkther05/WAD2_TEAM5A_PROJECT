@@ -4,7 +4,7 @@
 
 {% block title_block %}
 <title>{{ media.title }} - ScreenCritic</title>
-<link rel="stylesheet" href="{% static 'css/title.css' %}">
+<link rel="stylesheet" href="{% static 'css/title.css' %}?v=1">
 {% endblock %}
 
 {% block content %}
@@ -36,11 +36,17 @@
         <div class="media-right">
             <div class="description">
                 <h2>Description</h2>
-                <p>{{ media.description|default:"No description available." }}</p>
+                <p>{{ media.description|default:"No description available."|safe }}</p>
             </div>
+            <p><strong>Genres:</strong>
+                {% for genre in media.genres.all %}
+                    {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    No genres available.
+                {% endfor %}
+            </p>
 
             <p><strong>Release Date:</strong> {{ media.release_date|date:"F d, Y" }}</p>
-
             <div class="reviews-section">
                 <h2>Community Ratings and Reviews</h2>
                 <div class="sort-options">

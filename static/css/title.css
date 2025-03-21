@@ -133,8 +133,8 @@
 }
 
 .recommended-item img {
-    width: 120px; /* Adjust as needed */
     height: 180px;
+    width: 120px;
     object-fit: cover;
     border-radius: 5px;
 }
@@ -142,5 +142,13 @@
 .recommended-item a {
     text-decoration: none;
     color: black;
+}
+
+.recommended-item p {
+    max-width: 120px;
+    font-size: 14px;
+    margin-top: 5px;
+    overflow: hidden;
+    word-break: break-word;
 }
 
