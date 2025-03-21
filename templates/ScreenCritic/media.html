@@ -4,26 +4,53 @@
 
 {% block title_block %}
 <title>{{ media.title }} - ScreenCritic</title>
-<link rel="stylesheet" href="{% static 'css/title.css' %}">
-<!-- TODO: CHange CSS style sheet -->
+<link rel="stylesheet" href="{% static 'css/media_general.css' %}">
 {% endblock %}
-
-
 
 
 {% block content %}
 
-{% if user.is_authenticated %}
-<!-- Suggested for you based on user's genre preferences -->
- {% endif %}
 
- <!-- Trending Movies -->
-  <!-- PEOPLE ALSO ENJOYED -->
-  <div class="recommended-section">
+<!-- Suggested for you based on user's genre preferences -->
+{% if user.is_authenticated and suggested_movies %}
+<div class="media-section">
+    <h2>Suggested for You</h2>
+    <div class="media-scroll">
+        {% for media_item in suggested_movies %}
+        <div class="media-item">
+            <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <p class="media_title">{{ media_item.title }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+
+ <!-- Trending Media -->
+ <div class="media-section">
     <h2>Trending {{media_type}}</h2>
-    <div class="recommended-scroll">
+    <div class="media-scroll">
         {% for media_item in trending_movies %}
-        <div class="recommended-item">
+        <div class="media-item">
+            <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <p class="media_title">{{ media_item.title }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+  <!-- All Movies Alphabetically -->
+<div class="media-section">
+    <h2>{{media_type}} Alphabetically</h2>
+    <div class="media-scroll">
+        {% for media_item in movies_alphabetically %}
+        <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
                 <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
                 <p>{{ media_item.title }}</p>
@@ -32,7 +59,25 @@
         {% endfor %}
     </div>
 </div>
-  <!-- Titles Alphabetically -->
+
+
   <!-- Specific categories alphabetically??? -->
+  {% for genre, movies in movies_by_genre.items %}
+<div class="media-section">
+    <h2>{{ genre }} Movies</h2>
+    <div class="media-scroll">
+        {% for media_item in movies %}
+        <div class="media-item">
+            <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <p>{{ media_item.title }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+
 
 {% endblock %}

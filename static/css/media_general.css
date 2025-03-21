@@ -1,0 +1,43 @@
+.media-section {
+    margin-top: 40px;
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.media-scroll {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
+}
+
+.media-item {
+    text-align: center;
+    margin-right: 15px;
+    flex: 0 0 auto;
+    flex-direction: column;
+
+    display: block;
+    width: 180px;
+}
+
+.media-item img {
+    width: 180px; /* Adjust as needed */
+    height: 270px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.media-item a {
+    text-decoration: none;
+    color: black;
+}
+
+.media-item p {
+    max-width: 180px; /* Keep text width equal to image */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-align: center; /* Ensure it's centered */
+    margin-top: 5px; /* Add spacing between image and text */
+}
