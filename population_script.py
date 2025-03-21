@@ -80,14 +80,19 @@ def fetch_movies(url, type_label):
     for movie in movies:
         if movie.get('title') and movie.get('release_date'):
             try:
-                details_response = requests.get(f"https://api.themoviedb.org/3/movie/{movie['id']}?api_key={TMDB_API_KEY}") #make a request for the specific movie so we can get duration and creator
+                details_response = requests.get(f"https://api.themoviedb.org/3/movie/{movie['id']}?api_key={TMDB_API_KEY}") #make a request for the specific movie so we can get duration
                 runtime = None
                 if details_response.status_code == 200:
                     details = details_response.json()
                     runtime = details.get("runtime")
                     genre_names = [genre["name"] for genre in details.get("genres", [])]
 
-                    directors = [person['name'] for person in details.get('crew', []) if person['job'] == 'Director']
+                credits_response = requests.get(f"https://api.themoviedb.org/3/movie/{movie['id']}/credits?api_key={TMDB_API_KEY}") #make a request for the specific movie so we can get creator
+                director_str = 'Unknown'
+                if credits_response.status_code == 200:
+                    credits_data = credits_response.json()
+                    crew = credits_data.get('crew', [])
+                    directors = [person['name'] for person in crew if person['job'] == 'Director']
                     director_str = ', '.join(directors) if directors else 'Unknown'
                 
                 media = Media.objects.create(
