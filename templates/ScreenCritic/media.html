@@ -1,3 +1,38 @@
-<!DOCTYPE html>
-{% extends ScreenCritic/base.html %}
-{% load staticfiles %}
+{% extends "ScreenCritic/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title_block %}
+<title>{{ media.title }} - ScreenCritic</title>
+<link rel="stylesheet" href="{% static 'css/title.css' %}">
+<!-- TODO: CHange CSS style sheet -->
+{% endblock %}
+
+
+
+
+{% block content %}
+
+{% if user.is_authenticated %}
+<!-- Suggested for you based on user's genre preferences -->
+ {% endif %}
+
+ <!-- Trending Movies -->
+  <!-- PEOPLE ALSO ENJOYED -->
+  <div class="recommended-section">
+    <h2>Trending {{media_type}}</h2>
+    <div class="recommended-scroll">
+        {% for media_item in trending_movies %}
+        <div class="recommended-item">
+            <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <p>{{ media_item.title }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+  <!-- Titles Alphabetically -->
+  <!-- Specific categories alphabetically??? -->
+
+{% endblock %}

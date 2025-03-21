@@ -2,10 +2,24 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse 
 from django.db.models import Count, Avg
 from ScreenCritic.models import Media, Review
+from django.urls import reverse
 
 # Create your views here.
 def home(request):
     return render(request, 'ScreenCritic/base.html')
+
+def movie_list(request):
+    movies = Media.objects.filter(type='Movie').order_by('-release_date')
+
+    trending_movies = (Media.objects.filter(type='Movie').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
+    
+
+    context = {
+        'media_list': movies,
+        'media_type': 'Movies',
+        'trending_movies': trending_movies,
+    }
+    return render(request, 'ScreenCritic/media.html', context)
 
 def media_detail(request, slug, media_type):
     media = get_object_or_404(Media, slug=slug, type=media_type) #get the media object with the slug and media type
