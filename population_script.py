@@ -122,7 +122,6 @@ def fetch_games(url, type_label):
                 description = None
                 developer_str = 'Unknown'
                 genre_names = []
-                developer_str = 'Unknown'
                 if details_response.status_code == 200:
                     details = details_response.json()
                     description = details.get("description")
