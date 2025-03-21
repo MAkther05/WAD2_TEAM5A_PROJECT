@@ -1,0 +1,41 @@
+{% extends 'ScreenCritic/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}
+Login & Register
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-box login-box">
+        <h2>Login to ScreenCritic</h2>
+        <form id="login_form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="login" value="1">
+            <label>Username:</label>
+            <input type="text" name="username" required>
+            <br/>
+            <label>Password:</label>
+            <input type="password" name="password" required>
+            <br/>
+            <input class="submit-btn" type="submit" value="Login">
+        </form>
+    </div>
+
+    <div class="form-box register-box">
+        <h2>Register for ScreenCritic</h2>
+        {% if registered %}
+            <p><strong>Thank you for registering!</strong></p>
+            <a href="{% url 'ScreenCritic:index' %}" class="submit-btn">Return to the homepage.</a>
+        {% else %}
+            <form id="user_form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="register" value="1">
+                {{ user_form.as_p }}
+                {{ profile_form.as_p }}
+                <input class="submit-btn" type="submit" value="Register">
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

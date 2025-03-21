@@ -1,47 +1,105 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse 
-from django.db.models import Count, Avg
-from ScreenCritic.models import Media, Review
+from datetime import datetime
+from django.shortcuts import render
 
 # Create your views here.
+from django.http import HttpResponse 
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.urls import reverse
+from django.http import HttpResponse
+from .forms import ReviewForm, UserForm, UserProfileForm
+from django.contrib.auth.models import User
+
+from WAD2_TEAM5A_PROJECT import settings
+
 def home(request):
+    visitor_cookie_handler(request)
     return render(request, 'ScreenCritic/base.html')
 
-def media_detail(request, slug, media_type):
-    media = get_object_or_404(Media, slug=slug, type=media_type) #get the media object with the slug and media type
+def login_register(request):
+    registered = False
 
-    sort_by = request.GET.get('sort', 'default')
+    if request.method == "POST":
+        if "login" in request.POST:  # Login form submitted
+            username = request.POST.get("username")
+            password = request.POST.get("password")
+            user = authenticate(username=username, password=password)
 
-    reviews = (Review.objects.filter(media=media).annotate(likes_count=Count('reviewlike')).order_by('-likes_count', '-date')) #get all reviews for this media
+            if user:
+                if user.is_active:
+                    login(request, user)
+                    return redirect(reverse("ScreenCritic:index"))
+                else:
+                    return HttpResponse("Your ScreenCritic account is disabled.")
+            else:
+                return HttpResponse("Invalid login details supplied.")
 
-    if sort_by == 'likes': #most liked first
-        reviews = reviews.order_by('-likes_count', '-date')
-    elif sort_by == 'username': #alphabetical by username
-        reviews = reviews.order_by('user__username', '-date')
-    elif sort_by == 'recent': #most recent first
-        reviews = reviews.order_by('-date')
-    else:  #default is most liked
-        reviews = reviews.order_by('-likes_count', '-date')
+        elif "register" in request.POST:  # Registration form submitted
+            user_form = UserForm(request.POST)
+            profile_form = UserProfileForm(request.POST, request.FILES)
 
-    #get the total ratings and average rating stats
-    rating_stats = reviews.aggregate(
-        total_ratings=Count('rating'),
-        average_rating=Avg('rating')
-    )
-    total_ratings = rating_stats['total_ratings'] or 0
-    average_rating = rating_stats['average_rating'] or 0
-    text_reviews_count = reviews.exclude(review__isnull=True).exclude(review__exact='').count()
+            if user_form.is_valid() and profile_form.is_valid():
+                user = user_form.save()
+                user.set_password(user.password)  # Hash the password
+                user.save()
 
-    recommended_media = (Media.objects.filter(type=media_type).exclude(slug=slug).annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
+                profile = profile_form.save(commit=False)
+                profile.user = user
 
-    context = {
-        'media': media,
-        'reviews': reviews,
-        'recommended_media': recommended_media,
-        'total_ratings': total_ratings,
-        'average_rating': average_rating,
-        'text_reviews_count': text_reviews_count,
-        'current_sort': sort_by
-    }
+                if "profile_picture" in request.FILES:
+                    profile.profile_picture = request.FILES["profile_picture"]
 
-    return render(request, 'ScreenCritic/title.html', context)
+                profile.save()
+                registered = True
+            else:
+                print(user_form.errors, profile_form.errors)
+
+    else:
+        user_form = UserForm()
+        profile_form = UserProfileForm()
+
+    return render(request,"ScreenCritic/login_register.html",{"user_form": user_form, "profile_form": profile_form, "registered": registered},)
+
+
+
+def write_review(request):
+    
+    
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user  # Assuming the user is logged in
+            #review.media = media
+            review.save()
+            return redirect('ScreenCritic:index')  # Redirect to media detail page
+    else:
+        form = ReviewForm()
+    
+    return render(request, 'ScreenCritic/review.html', {'form': form})
+
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val
+
+# Updated the function definition
+def visitor_cookie_handler(request):
+    visits = int(get_server_side_cookie(request, 'visits', '1'))
+    last_visit_cookie = get_server_side_cookie(request,'last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7],'%Y-%m-%d %H:%M:%S')
+    # If it's been more than a day since the last visit...
+    if (datetime.now() - last_visit_time).days > 0:
+        visits = visits + 1
+        # Update the last visit cookie now that we have updated the count
+        request.session['last_visit'] = str(datetime.now())
+    else:
+        # Set the last visit cookie
+        request.session['last_visit'] = last_visit_cookie
+    # Update/set the visits cookie
+    request.session['visits'] = visits
