@@ -43,6 +43,41 @@ def movie_list(request):
     }
     return render(request, 'ScreenCritic/media.html', context)
 
+def tv_list(request):
+    shows = Media.objects.filter(type='TV Show').order_by('-release_date')
+
+    suggested_shows = []
+    if request.user.is_authenticated:
+        favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
+        if favorite_genres.exists():
+            suggested_shows = Media.objects.filter(genres__in=favorite_genres).distinct()[:10]  # Get unique media
+
+
+    trending_shows = (Media.objects.filter(type='TV Show').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
+    shows_alphabetically = (Media.objects.filter(type='TV Show').order_by('title'))
+
+    shows_by_genre = {}
+
+    for show in Media.objects.filter(type='TV Show').prefetch_related('genres'):
+        for genre in show.genres.all():
+            if genre.name not in shows_by_genre:
+                shows_by_genre[genre.name] = []
+            shows_by_genre[genre.name].append(show)
+
+        
+
+
+    context = {
+        'media_list': shows,
+        'media_type': 'TV Show',
+        'trending_movies': trending_shows,
+        'movies_alphabetically': shows_alphabetically,
+        'movies_by_genre': shows_by_genre,
+        'suggested_movies': suggested_shows,
+        
+    }
+    return render(request, 'ScreenCritic/media.html', context)
+
 def media_detail(request, slug, media_type):
     media = get_object_or_404(Media, slug=slug, type=media_type) #get the media object with the slug and media type
 

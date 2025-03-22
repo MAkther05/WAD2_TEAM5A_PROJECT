@@ -6,7 +6,7 @@ urlpatterns = [
     path('home/', views.home, name='home'),
 
     # TV Shows
-    # path('tv/', views.media_general, name='tv_list'),
+    path('tv/', views.tv_list, name='tv_list'),
     path('tv/<slug:slug>/', views.media_detail, {'media_type': 'TV Show'}, name='tv_detail'),
     # path('tv/<slug:slug>/review/', views.media_review, {'media_type': 'TV Show'}, name='tv_review'),
 
