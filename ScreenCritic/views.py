@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse 
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Count, Avg
-from ScreenCritic.models import Media, Review
+from ScreenCritic.models import Media, Review, ReviewLike
 
 # Create your views here.
 def home(request):
@@ -36,6 +36,11 @@ def media_detail(request, slug, media_type):
 
     recommended_media = (Media.objects.filter(type=media_type).exclude(slug=slug).annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
 
+    if request.user.is_authenticated:
+        liked_reviews = set(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True))
+    else:
+        liked_reviews = set()
+
     context = {
         'media': media,
         'reviews': reviews,
@@ -43,7 +48,27 @@ def media_detail(request, slug, media_type):
         'total_ratings': total_ratings,
         'average_rating': average_rating,
         'text_reviews_count': text_reviews_count,
-        'current_sort': sort_by
+        'current_sort': sort_by,
+        'liked_reviews': liked_reviews
     }
 
     return render(request, 'ScreenCritic/title.html', context)
+
+def like_review(request, review_id):
+    if not request.user.is_authenticated: #redirect to login page if not authenticated
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=400)
+
+    review = Review.objects.get(pk=review_id) #get the review object
+    liked, created = ReviewLike.objects.get_or_create(user=request.user, review=review) #get or create the review like object
+
+    if not created: #if the review like object already exists, delete it as it is being unliked
+        liked.delete()
+        liked_status = False
+    else: #if the review like object does not exist, create it as it is being liked
+        liked_status = True
+
+    like_count = ReviewLike.objects.filter(review=review).count() #get the number of likes for the review
+    return JsonResponse({'likes': like_count, 'liked': liked_status}) #return the number of likes and the liked status

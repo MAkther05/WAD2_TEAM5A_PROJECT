@@ -152,3 +152,18 @@
     word-break: break-word;
 }
 
+.like-btn {
+    cursor: pointer;
+    font-size: 24px;
+    transition: transform 0.2s ease, color 0.2s ease;
+    color: black;
+}
+
+.like-btn:hover {
+    transform: scale(1.4);
+    color: red;
+}
+
+.like-btn.liked {
+    color: red;
+}
