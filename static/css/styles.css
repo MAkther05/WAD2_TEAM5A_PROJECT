@@ -58,13 +58,6 @@ nav {
     border: 1px solid #999;
 }
 
-/* Notification Icon */
-.notification-icon {
-    width: 24px;
-    height: auto;
-    cursor: pointer;
-}
-
 /* Login Button */
 .login-btn {
     background: white;
@@ -85,4 +78,30 @@ nav {
     position: relative;
     bottom: 0;
     width: 100%;
+}
+
+.notification-container {
+    position: relative;
+    display: inline-block;
+}
+
+.notification-bell {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: white;
+    padding: 10px;
+    width: 250px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    z-index: 100;
+    border: 2px solid #424242;
+    border-radius: 8px;
 }

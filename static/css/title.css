@@ -133,8 +133,8 @@
 }
 
 .recommended-item img {
-    width: 120px; /* Adjust as needed */
     height: 180px;
+    width: 120px;
     object-fit: cover;
     border-radius: 5px;
 }
@@ -144,3 +144,26 @@
     color: black;
 }
 
+.recommended-item p {
+    max-width: 120px;
+    font-size: 14px;
+    margin-top: 5px;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.like-btn {
+    cursor: pointer;
+    font-size: 24px;
+    transition: transform 0.2s ease, color 0.2s ease;
+    color: black;
+}
+
+.like-btn:hover {
+    transform: scale(1.4);
+    color: red;
+}
+
+.like-btn.liked {
+    color: red;
+}

@@ -66,7 +66,7 @@ def fetch_tv_shows(url, type_label):
                     creator=creator_str
                 )
 
-                genre_names = [genre["name"] for genre in show.get("genres", [])]
+                genre_names = [genre["name"] for genre in show_details.get("genres", [])]
                 genres = Genre.objects.filter(name__in=genre_names)
                 media.genres.set(genres)
                 
@@ -273,6 +273,7 @@ if __name__ == "__main__":
     fetch_rawg_genres()
     fetch_tv_shows(f"{TMDB_BASE_URL}/tv?api_key={TMDB_API_KEY}&sort_by=popularity.desc&first_air_date.lte=2024-12-31", "Past TV Shows")
     fetch_tv_shows(f"{TMDB_BASE_URL}/tv?api_key={TMDB_API_KEY}&sort_by=popularity.desc&first_air_date.gte=2025-01-01&first_air_date.lte=2025-12-31", "Upcoming TV Shows")
+    fetch_tv_shows(f"{TMDB_BASE_URL}/tv?api_key={TMDB_API_KEY}&sort_by=popularity.desc&with_original_language=ko", "TV Shows")
     fetch_movies(f"{TMDB_BASE_URL}/movie?api_key={TMDB_API_KEY}&sort_by=popularity.desc&primary_release_date.lte=2024-12-31", "Past Movies")
     fetch_movies(f"{TMDB_BASE_URL}/movie?api_key={TMDB_API_KEY}&sort_by=popularity.desc&primary_release_year=2025", "Upcoming Movies")
     fetch_games(f"{RAWG_BASE_URL}?key={RAWG_API_KEY}&ordering=-released&dates=2000-01-01,2024-12-31", "Past Games")
