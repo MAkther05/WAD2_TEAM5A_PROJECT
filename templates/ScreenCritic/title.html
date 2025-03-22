@@ -86,7 +86,12 @@
                             {% endfor %}
                         </div>
                         <p>Comment: {{ review.review }}</p>
-                        <p>Likes ❤️ {{ review.reviewlike_set.count }}</p>
+                        <p>
+                            <span class="like-btn {% if review.review_id in liked_reviews %}liked{% endif %}" data-review-id="{{ review.review_id }}">
+                                <i class="{% if review.review_id in liked_reviews %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                            </span>
+                            <span id="like-count-{{ review.review_id }}">{{ review.reviewlike_set.count }}</span> Likes
+                        </p>                           
                     </div>
                     {% endfor %}
                 </div>
@@ -110,4 +115,6 @@
     </div>
 
 </div>
+
+<script src="{% static 'js/like.js' %}?v=1"></script>
 {% endblock %}

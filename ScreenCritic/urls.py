@@ -19,4 +19,6 @@ urlpatterns = [
     # path('games/', views.game_list, name='game_list'),
     path('games/<slug:slug>/', views.media_detail, {'media_type': 'Game'}, name='game_detail'),
     # path('games/<slug:slug>/review/', views.media_review, {'media_type': 'Game'}, name='game_review'),
+
+    path('review/<int:review_id>/like/', views.like_review, name='like_review'),
 ]

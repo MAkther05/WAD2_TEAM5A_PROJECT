@@ -20,3 +20,6 @@ This project uses the following external APIs and resources:
 [ChatGPT](https://chat.openai.com/)
 - For general debugging help and best practices.
 - Default profile picture generated using OpenAI DALL·E (ChatGPT)
+
+[Font Awesome](https://fontawesome.com/)
+- For icons (like hearts for the like button)
