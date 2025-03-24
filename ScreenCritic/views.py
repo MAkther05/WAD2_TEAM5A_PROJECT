@@ -29,9 +29,6 @@ def movie_list(request):
                 movies_by_genre[genre.name] = []
             movies_by_genre[genre.name].append(movie)
 
-        
-
-
     context = {
         'media_list': movies,
         'media_type': 'Movies',
@@ -44,37 +41,32 @@ def movie_list(request):
     return render(request, 'ScreenCritic/media.html', context)
 
 def tv_list(request):
-    shows = Media.objects.filter(type='TV Show').order_by('-release_date')
+    shows = Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').order_by('-release_date')
 
     suggested_shows = []
     if request.user.is_authenticated:
         favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
         if favorite_genres.exists():
-            suggested_shows = Media.objects.filter(genres__in=favorite_genres).distinct()[:10]  # Get unique media
+            suggested_shows = Media.objects.filter(type='TV Show', genres__in=favorite_genres, slug__isnull=False, slug__gt='').distinct()[:10]  # Get unique media
 
-
-    trending_shows = (Media.objects.filter(type='TV Show').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
-    shows_alphabetically = (Media.objects.filter(type='TV Show').order_by('title'))
+    trending_shows = (Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
+    shows_alphabetically = (Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').order_by('title'))
 
     shows_by_genre = {}
 
-    for show in Media.objects.filter(type='TV Show').prefetch_related('genres'):
+    for show in Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').prefetch_related('genres'):
         for genre in show.genres.all():
             if genre.name not in shows_by_genre:
                 shows_by_genre[genre.name] = []
             shows_by_genre[genre.name].append(show)
 
-        
-
-
     context = {
         'media_list': shows,
-        'media_type': 'TV Show',
+        'media_type': 'TV Shows',
         'trending_movies': trending_shows,
         'movies_alphabetically': shows_alphabetically,
         'movies_by_genre': shows_by_genre,
         'suggested_movies': suggested_shows,
-        
     }
     return render(request, 'ScreenCritic/media.html', context)
 
@@ -104,7 +96,7 @@ def game_list(request):
 
     context = {
         'media_list': games,
-        'media_type': 'Game',
+        'media_type': 'Games',
         'trending_movies': trending_games,
         'movies_alphabetically': games_alphabetically,
         'movies_by_genre': games_by_genre,
