@@ -64,7 +64,7 @@
   <!-- Specific categories alphabetically??? -->
   {% for genre, movies in movies_by_genre.items %}
 <div class="media-section">
-    <h2>{{ genre }} Movies</h2>
+    <h2>{{ genre }} {{media_type}}</h2>
     <div class="media-scroll">
         {% for media_item in movies %}
         <div class="media-item">
