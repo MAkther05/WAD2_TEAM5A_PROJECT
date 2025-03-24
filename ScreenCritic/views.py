@@ -1,15 +1,116 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Count, Avg
-from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
-from ScreenCritic.forms import  LoginForm, RegisterForm, ReviewForm
-from ScreenCritic.models import Media, Review, ReviewLike, UserProfile
-from django.contrib import messages
+from ScreenCritic.models import Media, Review, ReviewLike
 
 # Create your views here.
 def home(request):
     return render(request, 'ScreenCritic/base.html')
+
+def movie_list(request):
+    movies = Media.objects.filter(type='Movie').order_by('-release_date')
+
+    suggested_movies = []
+    if request.user.is_authenticated:
+        favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
+        if favorite_genres.exists():
+            suggested_movies = Media.objects.filter(genres__in=favorite_genres).distinct()[:10]  # Get unique media
+
+
+    trending_movies = (Media.objects.filter(type='Movie').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
+    movies_alphabetically = (Media.objects.filter(type='Movie').order_by('title'))
+
+    movies_by_genre = {}
+
+    for movie in Media.objects.filter(type='Movie').prefetch_related('genres'):
+        for genre in movie.genres.all():
+            if genre.name not in movies_by_genre:
+                movies_by_genre[genre.name] = []
+            movies_by_genre[genre.name].append(movie)
+
+        
+
+
+    context = {
+        'media_list': movies,
+        'media_type': 'Movies',
+        'trending_movies': trending_movies,
+        'movies_alphabetically': movies_alphabetically,
+        'movies_by_genre': movies_by_genre,
+        'suggested_movies': suggested_movies,
+        
+    }
+    return render(request, 'ScreenCritic/media.html', context)
+
+def tv_list(request):
+    shows = Media.objects.filter(type='TV Show').order_by('-release_date')
+
+    suggested_shows = []
+    if request.user.is_authenticated:
+        favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
+        if favorite_genres.exists():
+            suggested_shows = Media.objects.filter(genres__in=favorite_genres).distinct()[:10]  # Get unique media
+
+
+    trending_shows = (Media.objects.filter(type='TV Show').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
+    shows_alphabetically = (Media.objects.filter(type='TV Show').order_by('title'))
+
+    shows_by_genre = {}
+
+    for show in Media.objects.filter(type='TV Show').prefetch_related('genres'):
+        for genre in show.genres.all():
+            if genre.name not in shows_by_genre:
+                shows_by_genre[genre.name] = []
+            shows_by_genre[genre.name].append(show)
+
+        
+
+
+    context = {
+        'media_list': shows,
+        'media_type': 'TV Show',
+        'trending_movies': trending_shows,
+        'movies_alphabetically': shows_alphabetically,
+        'movies_by_genre': shows_by_genre,
+        'suggested_movies': suggested_shows,
+        
+    }
+    return render(request, 'ScreenCritic/media.html', context)
+
+def game_list(request):
+    games = Media.objects.filter(type='Game').order_by('-release_date')
+
+    suggested_games = []
+    if request.user.is_authenticated:
+        favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
+        if favorite_genres.exists():
+            suggested_games = Media.objects.filter(genres__in=favorite_genres).distinct()[:10] 
+
+
+    trending_games = (Media.objects.filter(type='Game').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
+    games_alphabetically = (Media.objects.filter(type='Game').order_by('title'))
+
+    games_by_genre = {}
+
+    for game in Media.objects.filter(type='Game').prefetch_related('genres'):
+        for genre in game.genres.all():
+            if genre.name not in games_by_genre:
+                games_by_genre[genre.name] = []
+            games_by_genre[genre.name].append(game)
+
+        
+
+
+    context = {
+        'media_list': games,
+        'media_type': 'Game',
+        'trending_movies': trending_games,
+        'movies_alphabetically': games_alphabetically,
+        'movies_by_genre': games_by_genre,
+        'suggested_movies': suggested_games,
+        
+    }
+    return render(request, 'ScreenCritic/media.html', context)
 
 def media_detail(request, slug, media_type):
     media = get_object_or_404(Media, slug=slug, type=media_type) #get the media object with the slug and media type
