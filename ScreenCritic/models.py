@@ -21,7 +21,7 @@ class Genre(models.Model):
 class Media(models.Model):
     media_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
     type = models.CharField(max_length=20)
     description = models.TextField(blank=True, null=True)
     cover_image = models.ImageField(upload_to='cover_images/', blank=True, null=True)
