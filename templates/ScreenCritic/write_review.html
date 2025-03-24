@@ -1,0 +1,28 @@
+{% extends 'ScreenCritic/base.html' %}
+{% load static %}
+
+{% block title_block %}
+<title>Write a Review</title>
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/review.css' %}?v=1">
+<div class="review-container">
+    <h2>Write a Review for {{ media.title }}</h2>
+    <form method="POST" action="">
+        {% csrf_token %}
+        
+        <div class="star-rating">
+            <input type="radio" id="star5" name="rating" value="5"><label for="star5" class="fa fa-star"></label>
+            <input type="radio" id="star4" name="rating" value="4"><label for="star4" class="fa fa-star"></label>
+            <input type="radio" id="star3" name="rating" value="3"><label for="star3" class="fa fa-star"></label>
+            <input type="radio" id="star2" name="rating" value="2"><label for="star2" class="fa fa-star"></label>
+            <input type="radio" id="star1" name="rating" value="1"><label for="star1" class="fa fa-star"></label>
+        </div>
+        
+        <textarea name="review" placeholder="Write your review here..." required></textarea>
+        <button type="submit">Submit Review</button>
+    </form>
+</div>
+<script src="{% static 'js/review.js' %}?v=1"></script>
+{% endblock %}

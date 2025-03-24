@@ -28,7 +28,13 @@
                     <span>{{ total_ratings }} ratings</span> • 
                     <span>{{ text_reviews_count }} reviews</span>
                 </div>                                 
-                <button class="review-btn">Review</button>
+                    {% with media.type|route_name_review as review_url %}
+                        {% if review_url %}
+                            <a class="review-btn" href="{% url review_url slug=media.slug %}"> Review</a>
+                        {% else %}
+                            <p>No review link available</p>
+                        {% endif %}
+                    {% endwith %}
             </div>
         </div>
 
