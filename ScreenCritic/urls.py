@@ -5,7 +5,7 @@ app_name = 'ScreenCritic'
 
 urlpatterns = [
     path('', views.home, name='home'),  
-
+    path('home/', views.home, name='home'),
    
     path('tv/', views.tv_list, name='tv_list'),
     path('tv/<slug:slug>/', views.media_detail, {'media_type': 'TV Show'}, name='tv_detail'),
