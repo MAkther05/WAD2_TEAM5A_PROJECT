@@ -1,9 +1,10 @@
-from django.urls import path 
+from django.urls import path
 from ScreenCritic import views
 
 app_name = 'ScreenCritic'
+
 urlpatterns = [
-    path('home/', views.home, name='home'),
+    path('', views.home, name='home'),
 
     # TV Shows
     path('tv/', views.tv_list, name='tv_list'),
