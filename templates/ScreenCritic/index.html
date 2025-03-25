@@ -3,18 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>ScreenCritic - Home</title>
     <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #444;
+            padding: 10px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+        .hero {
+            text-align: center;
+            padding: 50px;
+            background: url('/static/images/banner.jpg') no-repeat center center/cover;
+            color: white;
+            font-size: 30px;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .features {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .feature-box {
+            width: 30%;
+            padding: 20px;
+            background: #ddd;
+            text-align: center;
+            border-radius: 5px;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to ScreenCritic</h1>
-    </header>
-    <main>
-        <p>This is the home page of the ScreenCritic web application.</p>
-    </main>
+
+    <header>ScreenCritic</header>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Reviews</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </nav>
+
+    <div class="hero">
+        <h1>Discover the Best Movies & TV Shows</h1>
+        <p>Explore detailed reviews, ratings, and more!</p>
+    </div>
+
+    <div class="container">
+        <h2>Featured Content</h2>
+        <div class="features">
+            <div class="feature-box">
+                <h3>Latest Reviews</h3>
+                <p>Stay updated with our latest reviews.</p>
+            </div>
+            <div class="feature-box">
+                <h3>Top Rated</h3>
+                <p>Check out the best-rated movies & shows.</p>
+            </div>
+            <div class="feature-box">
+                <h3>Community Picks</h3>
+                <p>See what our community loves!</p>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2025 ScreenCritic. All rights reserved.</p>
     </footer>
+
 </body>
 </html>
