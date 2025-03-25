@@ -6,7 +6,7 @@ from django.urls import reverse
 
 # Create your views here.
 def home(request):
-    return render(request, 'ScreenCritic/base.html')
+    return render(request, 'ScreenCritic/index.html')
 
 def movie_list(request):
     movies = Media.objects.filter(type='Movie').order_by('-release_date')
@@ -90,9 +90,6 @@ def game_list(request):
             if genre.name not in games_by_genre:
                 games_by_genre[genre.name] = []
             games_by_genre[genre.name].append(game)
-
-        
-
 
     context = {
         'media_list': games,
