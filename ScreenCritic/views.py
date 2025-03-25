@@ -15,8 +15,7 @@ def movie_list(request):
     if request.user.is_authenticated:
         favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
         if favorite_genres.exists():
-            suggested_movies = Media.objects.filter(genres__in=favorite_genres).distinct()[:10]  # Get unique media
-
+            suggested_movies = Media.objects.filter(type='Movie', genres__in=favorite_genres).annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
     trending_movies = (Media.objects.filter(type='Movie').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
     movies_alphabetically = (Media.objects.filter(type='Movie').order_by('title'))
@@ -38,16 +37,18 @@ def movie_list(request):
         'suggested_movies': suggested_movies,
         
     }
+    
     return render(request, 'ScreenCritic/media.html', context)
 
 def tv_list(request):
+
     shows = Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').order_by('-release_date')
 
     suggested_shows = []
     if request.user.is_authenticated:
         favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
         if favorite_genres.exists():
-            suggested_shows = Media.objects.filter(type='TV Show', genres__in=favorite_genres, slug__isnull=False, slug__gt='').distinct()[:10]  # Get unique media
+            suggested_shows = Media.objects.filter(type='TV Show', genres__in=favorite_genres, slug__isnull=False, slug__gt='').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
     trending_shows = (Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
     shows_alphabetically = (Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').order_by('title'))
@@ -68,6 +69,7 @@ def tv_list(request):
         'movies_by_genre': shows_by_genre,
         'suggested_movies': suggested_shows,
     }
+
     return render(request, 'ScreenCritic/media.html', context)
 
 def game_list(request):
@@ -77,8 +79,7 @@ def game_list(request):
     if request.user.is_authenticated:
         favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
         if favorite_genres.exists():
-            suggested_games = Media.objects.filter(genres__in=favorite_genres).distinct()[:10] 
-
+            suggested_games = Media.objects.filter(type='Game', genres__in=favorite_genres).annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
     trending_games = (Media.objects.filter(type='Game').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
     games_alphabetically = (Media.objects.filter(type='Game').order_by('title'))
@@ -100,6 +101,7 @@ def game_list(request):
         'suggested_movies': suggested_games,
         
     }
+
     return render(request, 'ScreenCritic/media.html', context)
 
 def media_detail(request, slug, media_type):
