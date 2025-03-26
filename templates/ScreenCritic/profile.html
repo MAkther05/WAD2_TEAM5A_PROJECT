@@ -1,0 +1,193 @@
+{% extends "ScreenCritic/base.html" %}
+{% load static %}
+
+{% block title_block %}
+<title>{{ user_profile.user.username }} - Profile</title>
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=999">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-sidebar">
+        {% if user_profile.profile_picture %}
+            <img class="profile-img" src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
+        {% else %}
+            <img class="profile-img" src="{% static 'images/default_profile.png' %}" alt="Default Profile">
+        {% endif %}
+        <h2>{{ user_profile.user.username }}</h2>
+
+        <p class="review-count">
+            {% if active_tab == 'reviewed' %}
+                {{ reviewed_reviews.count|default:0 }} Reviewed
+            {% elif active_tab == 'liked' %}
+                {{ liked_reviews.count|default:0 }} Liked
+            {% elif active_tab == 'to-review' %}
+                {{ to_review_media.count|default:0 }} To-Review
+            {% endif %}
+        </p>
+
+        <div class="bio-box">
+            <h3>Bio</h3>
+            <p>{{ user_profile.bio|default:"No bio yet." }}</p>
+        </div>
+
+        <div class="genre-box">
+            <h3>Genres</h3>
+            <ul>
+                {% for fav in favorite_genres %}
+                    <li>{{ fav.genre.name }}</li>
+                {% empty %}
+                    <li>No genres yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a class="edit-btn" href="{% url 'ScreenCritic:edit_profile' %}">⚙️Edit Profile</a>
+    </div>
+
+    <div class="profile-main">
+        <div class="tab-nav">
+            <a href="?tab=reviewed"{% if active_tab == 'reviewed' %} class="active"{% endif %}>Reviewed</a>
+            <a href="?tab=liked"{% if active_tab == 'liked' %} class="active"{% endif %}>Liked</a>
+            <a href="?tab=to-review"{% if active_tab == 'to-review' %} class="active"{% endif %}>To-Review</a>
+        </div>
+
+        {% if active_tab != 'to-review' %}
+        <form method="get" class="sort-form">
+            <input type="hidden" name="tab" value="{{ active_tab }}">
+            <label>SORT BY:</label>
+            <select name="sort" onchange="this.form.submit()">
+                <option value="rating-desc" {% if current_sort == 'rating-desc' %}selected{% endif %}>Top Rated</option>
+                <option value="rating-asc" {% if current_sort == 'rating-asc' %}selected{% endif %}>Low Rated</option>
+                <option value="date-desc" {% if current_sort == 'date-desc' %}selected{% endif %}>Newest</option>
+                <option value="date-asc" {% if current_sort == 'date-asc' %}selected{% endif %}>Oldest</option>
+            </select>
+        </form>
+        {% endif %}
+
+        <div class="review-scroll">
+            {% if active_tab == 'reviewed' %}
+                {% for review in reviewed_reviews %}
+                <div class="review-card">
+                    {% if review.media.slug %}
+                        <a href="{% if review.media.type == 'TV Show' %}
+                                    {% url 'ScreenCritic:tv_detail' slug=review.media.slug %}
+                                 {% elif review.media.type == 'Movie' %}
+                                    {% url 'ScreenCritic:movie_detail' slug=review.media.slug %}
+                                 {% elif review.media.type == 'Game' %}
+                                    {% url 'ScreenCritic:game_detail' slug=review.media.slug %}
+                                 {% endif %}">
+                            <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}">
+                        </a>
+                    {% else %}
+                        <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}">
+                    {% endif %}
+                    <div class="review-content">
+                        <h4>{{ review.media.title }}</h4>
+                        <div class="review-header">
+                            <div class="review-user">
+                                {% if review.user.userprofile.profile_picture %}
+                                    <img src="{{ review.user.userprofile.profile_picture.url }}" class="profile-pic" alt="User Pic">
+                                {% else %}
+                                    <img src="{% static 'images/default_profile.png' %}" class="profile-pic" alt="Default Pic">
+                                {% endif %}
+                                <span class="username-plain">{{ review.user.username }}</span>
+                            </div>
+                            <span class="review-date">{{ review.date|date:"M d, Y" }}</span>
+                        </div>
+                        <div>Rated:
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <p>Comment: {{ review.review }}</p>
+                        <p>
+                            <span class="like-btn {% if review.review_id in liked_reviews_ids %}liked{% endif %}" data-review-id="{{ review.review_id }}">
+                                <i class="{% if review.review_id in liked_reviews_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                            </span>
+                            <span id="like-count-{{ review.review_id }}">{{ review.reviewlike_set.count }}</span> Likes
+                        </p>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No reviews yet.</p>
+                {% endfor %}
+
+            {% elif active_tab == 'liked' %}
+                {% for review in liked_reviews %}
+                <div class="review-card">
+                    {% if review.media.slug %}
+                        <a href="{% if review.media.type == 'TV Show' %}
+                                    {% url 'ScreenCritic:tv_detail' slug=review.media.slug %}
+                                 {% elif review.media.type == 'Movie' %}
+                                    {% url 'ScreenCritic:movie_detail' slug=review.media.slug %}
+                                 {% elif review.media.type == 'Game' %}
+                                    {% url 'ScreenCritic:game_detail' slug=review.media.slug %}
+                                 {% endif %}">
+                            <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}">
+                        </a>
+                    {% else %}
+                        <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}">
+                    {% endif %}
+                    <div class="review-content">
+                        <h4>{{ review.media.title }}</h4>
+                        <div class="review-header">
+                            <div class="review-user">
+                                {% if review.user.userprofile.profile_picture %}
+                                    <img src="{{ review.user.userprofile.profile_picture.url }}" class="profile-pic" alt="User Pic">
+                                {% else %}
+                                    <img src="{% static 'images/default_profile.png' %}" class="profile-pic" alt="Default Pic">
+                                {% endif %}
+                                <span class="username-plain">{{ review.user.username }}</span>
+                            </div>
+                            <span class="review-date">{{ review.date|date:"M d, Y" }}</span>
+                        </div>
+                        <div>Rated:
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <p>Comment: {{ review.review }}</p>
+                        <p>
+                            <span class="like-btn liked" data-review-id="{{ review.review_id }}">
+                                <i class="fa-solid fa-heart"></i>
+                            </span>
+                            <span id="like-count-{{ review.review_id }}">{{ review.reviewlike_set.count }}</span> Likes
+                        </p>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No liked reviews yet.</p>
+                {% endfor %}
+
+            {% elif active_tab == 'to-review' %}
+                {% for media in to_review_media %}
+                <div class="review-card">
+                    {% if media.slug %}
+                        <a href="{% if media.type == 'TV Show' %}
+                                    {% url 'ScreenCritic:tv_detail' slug=media.slug %}
+                                 {% elif media.type == 'Movie' %}
+                                    {% url 'ScreenCritic:movie_detail' slug=media.slug %}
+                                 {% elif media.type == 'Game' %}
+                                    {% url 'ScreenCritic:game_detail' slug=media.slug %}
+                                 {% endif %}">
+                            <img src="{{ media.cover_image }}" class="media-img" alt="{{ media.title }}">
+                        </a>
+                    {% else %}
+                        <img src="{{ media.cover_image }}" class="media-img" alt="{{ media.title }}">
+                    {% endif %}
+                    <div class="review-content">
+                        <h4>{{ media.title }}</h4>
+                        <p>{{ media.description|truncatewords:25|safe }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No recommendations yet.</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/like.js' %}?v=3"></script>
+{% endblock %}

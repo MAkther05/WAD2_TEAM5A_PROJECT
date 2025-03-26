@@ -51,17 +51,23 @@ def fetch_tv_shows(url, type_label):
     tv_shows = fetch_paginated_data(url, type_label) #get a list of tv show dicts
 
     for show in tv_shows:
-        if show.get('name') and show.get('first_air_date'):
+        if show.get('name') and show.get('first_air_date') and show.get('poster_path'):
             try:
+                if Media.objects.filter(title=show['name'], type='TV Show').exists(): #check if media already exists
+                    continue
+
                 show_details = requests.get(f"https://api.themoviedb.org/3/tv/{show['id']}?api_key={TMDB_API_KEY}").json() #get creator information
                 creators = [person['name'] for person in show_details.get('created_by', [])]
                 creator_str = ', '.join(creators) if creators else 'Unknown'
+                
+                tmdb_rating = show_details.get('vote_average', 0)
+                normalised_rating = round((tmdb_rating / 10) * 5)  # Convert from 0-10 to 1-5 scale
                 
                 media = Media.objects.create(
                     title=show['name'],
                     type='TV Show',
                     description=show.get('overview', ''),
-                    cover_image=f"https://image.tmdb.org/t/p/original{show['poster_path']}" if show.get('poster_path') else None,
+                    cover_image=f"https://image.tmdb.org/t/p/original{show['poster_path']}",
                     release_date=make_aware(datetime.strptime(show['first_air_date'], '%Y-%m-%d')),
                     creator=creator_str
                 )
@@ -70,7 +76,8 @@ def fetch_tv_shows(url, type_label):
                 genres = Genre.objects.filter(name__in=genre_names)
                 media.genres.set(genres)
                 
-                print(f"Created TV Show: {media.title}")
+                create_reviews_for_media(media, normalised_rating)
+                print(f"Created TV Show: {media.title} with rating: {normalised_rating}")
             except Exception as e:
                 print(f"Failed to create TV Show {show.get('name')}: {str(e)}")
 
@@ -78,14 +85,20 @@ def fetch_movies(url, type_label):
     movies = fetch_paginated_data(url, type_label) #get a list of movie dicts
 
     for movie in movies:
-        if movie.get('title') and movie.get('release_date'):
+        if movie.get('title') and movie.get('release_date') and movie.get('poster_path'):
             try:
+                if Media.objects.filter(title=movie['title'], type='Movie').exists(): #check if media already exists
+                    continue
+
                 details_response = requests.get(f"https://api.themoviedb.org/3/movie/{movie['id']}?api_key={TMDB_API_KEY}") #make a request for the specific movie so we can get duration
                 runtime = None
                 if details_response.status_code == 200:
                     details = details_response.json()
                     runtime = details.get("runtime")
                     genre_names = [genre["name"] for genre in details.get("genres", [])]
+
+                    tmdb_rating = details.get('vote_average', 0)
+                    normalised_rating = round((tmdb_rating / 10) * 5)  #convert from 0-10 to 1-5 scale
 
                 credits_response = requests.get(f"https://api.themoviedb.org/3/movie/{movie['id']}/credits?api_key={TMDB_API_KEY}") #make a request for the specific movie so we can get creator
                 director_str = 'Unknown'
@@ -99,7 +112,7 @@ def fetch_movies(url, type_label):
                     title=movie['title'],
                     type='Movie',
                     description=movie.get('overview', ''),
-                    cover_image=f"https://image.tmdb.org/t/p/original{movie['poster_path']}" if movie.get('poster_path') else None,
+                    cover_image=f"https://image.tmdb.org/t/p/original{movie['poster_path']}",
                     duration=runtime,
                     release_date=make_aware(datetime.strptime(movie['release_date'], '%Y-%m-%d')),
                     creator=director_str
@@ -108,7 +121,8 @@ def fetch_movies(url, type_label):
                 genres = Genre.objects.filter(name__in=genre_names)
                 media.genres.set(genres)
 
-                print(f"Created Movie: {media.title}")
+                create_reviews_for_media(media, normalised_rating)
+                print(f"Created Movie: {media.title} with rating: {normalised_rating}")
             except Exception as e:
                 print(f"Failed to create Movie {movie.get('title')}: {str(e)}")
 
@@ -116,8 +130,11 @@ def fetch_games(url, type_label):
     games = fetch_paginated_data(url, type_label) #get a list of game dicts
 
     for game in games:
-        if game.get('name') and game.get('released'):
+        if game.get('name') and game.get('released') and game.get('background_image'):
             try:
+                if Media.objects.filter(title=game['name'], type='Game').exists(): #check if media already exists
+                    continue
+
                 details_response = requests.get(f"https://api.rawg.io/api/games/{game['id']}?key={RAWG_API_KEY}") #make a request for the specific game so we can get description
                 description = None
                 developer_str = 'Unknown'
@@ -128,12 +145,18 @@ def fetch_games(url, type_label):
                     genre_names = [genre["name"] for genre in details.get("genres", [])]
                     developers = [dev['name'] for dev in details.get('developers', [])]
                     developer_str = ', '.join(developers) if developers else 'Unknown'
+
+                    rawg_rating = details.get('rating', 0)
+                    if rawg_rating is None or rawg_rating == 0:
+                        normalised_rating = 0
+                    else:
+                        normalised_rating = max(1, min(5, round(rawg_rating)))
                 
                 media = Media.objects.create(
                     title=game['name'],
                     type='Game',
                     description=description,
-                    cover_image=game.get('background_image'),
+                    cover_image=game['background_image'],
                     release_date=make_aware(datetime.strptime(game['released'], '%Y-%m-%d')),
                     creator=developer_str
                 )
@@ -141,9 +164,60 @@ def fetch_games(url, type_label):
                 genres = Genre.objects.filter(name__in=genre_names)
                 media.genres.set(genres)
                 
-                print(f"Created Game: {media.title}")
+                create_reviews_for_media(media, normalised_rating)
+                print(f"Created Game: {media.title} with rating: {normalised_rating}")
             except Exception as e:
                 print(f"Failed to create Game {game.get('name')}: {str(e)}")
+
+def create_reviews_for_media(media, base_rating):
+    users = list(User.objects.all())
+    num_reviews = random.randint(5, 10) #random number of reviews between 5 and 10
+    media_reviewers = random.sample(users, num_reviews) #random users to review the media
+    
+    review_texts = [
+        "Absolutely loved it! A masterpiece that exceeded all expectations.",
+        "One of the best experiences I've had, highly recommend!",
+        "Outstanding performance by the creator(s)!",
+        "Really impressed with the attention to detail.",
+        "A must-see/play/watch for fans of the genre!",
+        "Decent entertainment, but nothing groundbreaking.",
+        "Solid entertainment from start to finish.",
+        "Worth checking out if you're a fan of similar works.",
+        "Surprisingly good, went in with low expectations.",
+        "Could have been better, but still enjoyable.",
+        "Had potential but fell short in execution.",
+        "Interesting concept but could have been better executed.",
+        "Not my cup of tea, but I can see why others might enjoy it.",
+        "A bit disappointing considering the hype.",
+        "Mixed feelings about this one."
+    ]
+
+    for user in media_reviewers:
+        random_factor = random.gauss(0, 0.75)  #standard deviation of 0.75 for more variation
+        rating = round(base_rating + random_factor)
+        
+        rating = max(1, min(5, rating)) #ensure rating stays within 1-5 range
+        
+        #select review text based on rating
+        if rating >= 4: 
+            review_text = random.choice(review_texts[0:5])  #positive reviews
+        elif rating == 3:
+            review_text = random.choice(review_texts[5:10])  #neutral reviews
+        else:
+            review_text = random.choice(review_texts[10:15])  #negative reviews
+
+        review = Review.objects.create(
+            user=user,
+            media=media,
+            review=review_text,
+            rating=rating
+        )
+
+        num_likes = random.randint(0, 10) #random number of likes for each review (between 0 and 10)
+        liking_users = random.sample(users, num_likes) #get random users to like this review
+
+        for liker in liking_users:
+            ReviewLike.objects.get_or_create(user=liker, review=review)
 
 def create_users():
     print("Creating 50 Users...")
@@ -169,54 +243,6 @@ def create_users():
                 user = User.objects.create_user(username=username, email=f"{username}@example.com", password="password123")
                 UserProfile.objects.create(user=user, email=user.email)
                 print(f"Created User: {username}")
-
-def create_reviews_and_likes():
-    print("Creating Reviews and Likes...")
-    users = list(User.objects.all())
-    media_items = list(Media.objects.all())
-    
-    review_texts = [
-        "Absolutely loved it! A masterpiece that exceeded all expectations.",
-        "Decent entertainment, but nothing groundbreaking.",
-        "Had potential but fell short in execution.",
-        "One of the best experiences I've had, highly recommend!",
-        "Interesting concept but could have been better executed.",
-        "A must-see/play/watch for fans of the genre!",
-        "Not my cup of tea, but I can see why others might enjoy it.",
-        "Surprisingly good, went in with low expectations.",
-        "Could have been better, but still enjoyable.",
-        "Outstanding performance by the creator(s)!",
-        "Worth checking out if you're a fan of similar works.",
-        "A bit disappointing considering the hype.",
-        "Solid entertainment from start to finish.",
-        "Really impressed with the attention to detail.",
-        "Mixed feelings about this one."
-    ]
-
-    for media in media_items:
-        print(f"Creating Reviews and Likes for: {media.title}")
-        num_reviews = random.randint(5, 10)  #random number between 5 and 10
-        media_reviewers = random.sample(users, num_reviews) #create unique set of users for this 
-
-        for user in media_reviewers:
-            rating = random.randint(1, 5)
-            review_text = random.choice(review_texts)
-
-            review = Review.objects.create(
-                user=user,
-                media=media,
-                review=review_text,
-                rating=rating
-            )
-
-            num_likes = random.randint(0, 10) #random number of likes for each review (between 0 and 25)
-            liking_users = random.sample(users, num_likes) #get random users to like this review
-
-            for liker in liking_users:
-                ReviewLike.objects.get_or_create(user=liker, review=review)
-
-    print("Reviews and Likes Created.")
-
 
 def create_subscriptions():
     print("Creating Subscriptions...")
@@ -279,6 +305,5 @@ if __name__ == "__main__":
     fetch_games(f"{RAWG_BASE_URL}?key={RAWG_API_KEY}&ordering=-released&dates=2000-01-01,2024-12-31", "Past Games")
     fetch_games(f"{RAWG_BASE_URL}?key={RAWG_API_KEY}&ordering=-added&dates=2025-01-01,2025-12-31", "Upcoming Games")
     create_subscriptions()
-    create_reviews_and_likes()
     create_user_favorite_genres()
     print("Database Populated Successfully!")
