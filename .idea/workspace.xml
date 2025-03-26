@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="44cc1a5e-f4bd-43f4-9618-641ee122377c" name="Changes" comment="edit profile css">
-      <change beforePath="$PROJECT_DIR$/ScreenCritic/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScreenCritic/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ScreenCritic/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScreenCritic/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ScreenCritic/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScreenCritic/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/ScreenCritic/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/ScreenCritic/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +52,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "git-widget-placeholder": "profile",
+    "git-widget-placeholder": "search-feature",
     "last_opened_file_path": "/Users/danaalali/WAD2_TEAM5A_PROJECT",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",

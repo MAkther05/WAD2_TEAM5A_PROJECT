@@ -14,7 +14,7 @@ from django.db.models import Count, Avg
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile, Review, Media, Genre, UserFavouriteGenre, ReviewLike
 from .forms import ProfileEditForm
-
+from django.views.decorators.http import require_GET
 
 from ScreenCritic.templatetags.custom_filters import route_name
 
@@ -340,3 +340,18 @@ def edit_profile(request):
         "genres": genres,
         "user_favorite_genres": user_favorite_genres,
     })
+
+@require_GET
+def live_search(request):
+    query = request.GET.get('q', '')
+
+    # Top 5 matching users and media
+    user_matches = User.objects.filter(username__icontains=query)[:5]
+    media_matches = Media.objects.filter(title__icontains=query)[:5]
+
+    results = {
+        'users': [{'username': user.username} for user in user_matches],
+        'media': [{'title': media.title, 'slug': media.slug, 'type': media.type} for media in media_matches]
+    }
+
+    return JsonResponse(results)
