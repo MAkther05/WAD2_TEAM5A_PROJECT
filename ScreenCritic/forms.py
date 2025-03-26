@@ -26,6 +26,7 @@ class LoginForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
     )
 
+# forms.py
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
@@ -38,6 +39,14 @@ class RegisterForm(UserCreationForm):
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make password requirements less strict
+        self.fields['password1'].help_text = None
+        self.fields['password2'].help_text = None
+        self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Password'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirm Password'})
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

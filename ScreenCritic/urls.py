@@ -1,12 +1,13 @@
-from django.urls import path 
+from django.urls import path
 from ScreenCritic import views
 
 app_name = 'ScreenCritic'
-urlpatterns = [
-    path('home/', views.home, name='home'),
 
-    path('login-register/', views.login_register, name='login_register'),
-    path('logout/', views.user_logout, name='logout'),
+urlpatterns = [
+    path('', views.home, name='home'),  
+    path('home/', views.home, name='home'),
+    path('login_register/', views.login_register, name = 'login_register'),
+    path('logout/', views.user_logout, name = "logout"),
     # TV Shows
     path('tv/', views.tv_list, name='tv_list'),
     path('tv/<slug:slug>/', views.media_detail, {'media_type': 'TV Show'}, name='tv_detail'),

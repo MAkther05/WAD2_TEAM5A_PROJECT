@@ -21,8 +21,7 @@ def movie_list(request):
     if request.user.is_authenticated:
         favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
         if favorite_genres.exists():
-            suggested_movies = Media.objects.filter(genres__in=favorite_genres).distinct()[:10]  # Get unique media
-
+            suggested_movies = Media.objects.filter(type='Movie', genres__in=favorite_genres).annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
     trending_movies = (Media.objects.filter(type='Movie').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
     movies_alphabetically = (Media.objects.filter(type='Movie').order_by('title'))
@@ -44,16 +43,18 @@ def movie_list(request):
         'suggested_movies': suggested_movies,
         
     }
+    
     return render(request, 'ScreenCritic/media.html', context)
 
 def tv_list(request):
+
     shows = Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').order_by('-release_date')
 
     suggested_shows = []
     if request.user.is_authenticated:
         favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
         if favorite_genres.exists():
-            suggested_shows = Media.objects.filter(type='TV Show', genres__in=favorite_genres, slug__isnull=False, slug__gt='').distinct()[:10]  # Get unique media
+            suggested_shows = Media.objects.filter(type='TV Show', genres__in=favorite_genres, slug__isnull=False, slug__gt='').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
     trending_shows = (Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
     shows_alphabetically = (Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').order_by('title'))
@@ -74,6 +75,7 @@ def tv_list(request):
         'movies_by_genre': shows_by_genre,
         'suggested_movies': suggested_shows,
     }
+
     return render(request, 'ScreenCritic/media.html', context)
 
 def game_list(request):
@@ -83,8 +85,7 @@ def game_list(request):
     if request.user.is_authenticated:
         favorite_genres = UserFavouriteGenre.objects.filter(user=request.user).values_list('genre', flat=True)
         if favorite_genres.exists():
-            suggested_games = Media.objects.filter(genres__in=favorite_genres).distinct()[:10] 
-
+            suggested_games = Media.objects.filter(type='Game', genres__in=favorite_genres).annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
     trending_games = (Media.objects.filter(type='Game').annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]) #get recommended media (other media of same type)
     games_alphabetically = (Media.objects.filter(type='Game').order_by('title'))
@@ -97,9 +98,6 @@ def game_list(request):
                 games_by_genre[genre.name] = []
             games_by_genre[genre.name].append(game)
 
-        
-
-
     context = {
         'media_list': games,
         'media_type': 'Games',
@@ -109,6 +107,7 @@ def game_list(request):
         'suggested_movies': suggested_games,
         
     }
+
     return render(request, 'ScreenCritic/media.html', context)
 
 def media_detail(request, slug, media_type):
@@ -196,33 +195,55 @@ def media_review(request, slug, media_type):
 
 
 def login_register(request):
-    login_form = LoginForm(request.POST or None)
-    register_form = RegisterForm(request.POST or None)
-    
     if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
         # Handle login
-        if 'login_submit' in request.POST:
-            if login_form.is_valid():
-                username = login_form.cleaned_data.get('username')
-                password = login_form.cleaned_data.get('password')
-                user = authenticate(username=username, password=password)
-                if user:
-                    login(request, user)
-                    messages.success(request, "Logged in successfully!")
-                    return redirect('ScreenCritic:home')
-                else:
-                    messages.error(request, "Invalid username or password")
+        if form_type == 'login':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(username=username, password=password)
+            if user:
+                login(request, user)
+                messages.success(request, "Logged in successfully!")
+                return redirect('ScreenCritic:home')
+            else:
+                messages.error(request, "Invalid username or password")
+                return redirect('ScreenCritic:login_register')
         
         # Handle registration
-        elif 'register_submit' in request.POST:
-            if register_form.is_valid():
-                user = register_form.save()
+        elif form_type == 'register':
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
+            
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "Username already exists")
+                return redirect('ScreenCritic:login_register')
+            
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "Email already in use")
+                return redirect('ScreenCritic:login_register')
+            
+            if password1 != password2:
+                messages.error(request, "Passwords don't match")
+                return redirect('ScreenCritic:login_register')
+            
+            try:
+                user = User.objects.create_user(username=username, email=email, password=password1)
+                UserProfile.objects.create(user=user, email=email)
                 login(request, user)
                 messages.success(request, "Account created successfully!")
                 return redirect('ScreenCritic:home')
-            else:
-                messages.error(request, "Error creating account. Please check the form.")
+            except Exception as e:
+                messages.error(request, f"Error creating account: {str(e)}")
+                return redirect('ScreenCritic:login_register')
 
+    # For GET requests, still provide the forms for template rendering
+    login_form = LoginForm()
+    register_form = RegisterForm()
+    
     context = {
         'login_form': login_form,
         'register_form': register_form
