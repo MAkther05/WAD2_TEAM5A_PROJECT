@@ -1,12 +1,12 @@
 .title-page-container {
-    max-width: 1200px;
+    max-width: min(90vw, 1600px);
     margin: auto;
     padding: 20px;
 }
 
 .media-main {
     display: flex;
-    gap: 40px;
+    gap: clamp(20px, 4vw, 60px);
     align-items: flex-start;
 }
 
@@ -15,24 +15,27 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex-basis: 40%;
+    flex-basis: clamp(300px, 30%, 400px);
     flex-shrink: 0;
 }
 
 .media-left img {
-    width: 300px;
-    height: 400px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2/3;
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 20px;
+    max-width: 400px;
 }
 
 .media-text {
     text-align: center;
+    width: 100%;
 }
 
 .media-text h1 {
-    font-size: 22px;
+    font-size: clamp(20px, 2vw, 28px);
     margin-bottom: 10px;
 }
 
@@ -42,10 +45,9 @@
     justify-content: center;
     align-items: center;
     gap: 5px;
-    font-size: 16px;
+    font-size: clamp(14px, 1vw, 16px);
     margin: 10px 0;
 }
-
 
 .review-btn {
     background-color: #3366ff;
@@ -55,35 +57,48 @@
     cursor: pointer;
     border-radius: 5px;
     margin-top: 10px;
+    font-size: clamp(14px, 1vw, 16px);
 }
 
 /* RIGHT SIDE */
 .media-right {
     flex: 1;
-    min-width: 400px;
+    min-width: min(100%, 400px);
 }
 
 .description {
     margin-bottom: 30px;
-    max-width: 650px;
+    max-width: 800px;
+    font-size: clamp(14px, 1vw, 16px);
+}
+
+.description h2 {
+    font-size: clamp(18px, 1.5vw, 24px);
+    margin-bottom: 15px;
 }
 
 .reviews-section {
     margin-top: 30px;
 }
 
+.reviews-section h2 {
+    font-size: clamp(18px, 1.5vw, 24px);
+    margin-bottom: 15px;
+}
+
 .reviews-scroll {
-    max-height: 350px;
+    max-height: min(70vh, 600px);
     overflow-y: auto;
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 15px;
     border-radius: 5px;
     width: 100%;
 }
 
 .review-card {
-    padding: 10px;
+    padding: 15px;
     border-bottom: 1px solid #ddd;
+    font-size: clamp(14px, 1vw, 16px);
 }
 
 .review-header {
@@ -95,20 +110,25 @@
 .review-user {
     display: flex;
     align-items: center;
+    gap: 10px;
 }
 
 .review-date {
-    font-size: 14px;
+    font-size: clamp(12px, 0.9vw, 14px);
 }
 
 .review-card p {
-    margin: 5px 0;
+    margin: 10px 0;
 }
-
 
 /* People also enjoyed */
 .recommended-section {
     margin-top: 40px;
+}
+
+.recommended-section h2 {
+    font-size: clamp(18px, 1.5vw, 24px);
+    margin-bottom: 15px;
 }
 
 .recommended-scroll {
@@ -116,17 +136,17 @@
     overflow-x: auto;
     white-space: nowrap;
     padding: 10px;
+    gap: 20px;
 }
 
 .recommended-item {
     text-align: center;
-    margin-right: 15px;
     flex: 0 0 auto;
 }
 
 .recommended-item img {
-    height: 180px;
-    width: 120px;
+    height: clamp(180px, 15vw, 240px);
+    width: clamp(120px, 10vw, 160px);
     object-fit: cover;
     border-radius: 5px;
 }
@@ -137,8 +157,8 @@
 }
 
 .recommended-item p {
-    max-width: 120px;
-    font-size: 14px;
+    max-width: clamp(120px, 10vw, 160px);
+    font-size: clamp(12px, 0.9vw, 14px);
     margin-top: 5px;
     overflow: hidden;
     word-break: break-word;
@@ -146,7 +166,7 @@
 
 .like-btn {
     cursor: pointer;
-    font-size: 24px;
+    font-size: clamp(20px, 1.5vw, 24px);
     transition: transform 0.2s ease, color 0.2s ease;
     color: black;
 }
@@ -158,4 +178,19 @@
 
 .like-btn.liked {
     color: red;
+}
+
+@media (max-width: 768px) {
+    .media-main {
+        flex-direction: column;
+    }
+    
+    .media-left {
+        flex-basis: auto;
+        width: 100%;
+    }
+    
+    .media-right {
+        width: 100%;
+    }
 }

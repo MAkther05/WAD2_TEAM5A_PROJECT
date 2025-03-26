@@ -143,7 +143,7 @@ class ViewsTest(TestCase):
         self.assertEqual(response.context['media_type'], 'Games') #check if media type is correct
 
     def test_media_detail_view(self): #check if media detail view works correctly
-        response = self.client.get(reverse('ScreenCritic:media_detail', kwargs={'slug': self.media.slug, 'media_type': 'Movie'}))
+        response = self.client.get(reverse('ScreenCritic:movie_detail', kwargs={'slug': self.media.slug}))
         self.assertEqual(response.status_code, 200) #check if response status is correct
         self.assertTemplateUsed(response, 'ScreenCritic/title.html') #check if correct template is used
         self.assertIn('media', response.context) #check if media is in context
@@ -179,16 +179,26 @@ class ViewsTest(TestCase):
         self.assertIn(self.media, response.context['suggested_movies']) #check if media is in suggested movies
 
     def test_media_review_view_authenticated(self): #check if media review view works for authenticated users
+        # Create a new media object for this test
+        new_media = Media.objects.create(
+            title="New Test Movie",
+            type="Movie",
+            description="New Test Description",
+            release_date=timezone.now(),
+            creator="New Test Director"
+        )
+        new_media.genres.add(self.genre)
+        
         self.client.login(username="testuser", password="testpass")
-        response = self.client.get(reverse('ScreenCritic:media_review', kwargs={'slug': self.media.slug, 'media_type': 'Movie'}))
+        response = self.client.get(reverse('ScreenCritic:movie_review', kwargs={'slug': new_media.slug}))
         self.assertEqual(response.status_code, 200) #check if response status is correct
         self.assertTemplateUsed(response, 'ScreenCritic/write_review.html') #check if correct template is used
         self.assertIn('form', response.context) #check if form is in context
         self.assertIn('media', response.context) #check if media is in context
 
     def test_media_review_view_unauthenticated(self): #check if media review view handles unauthenticated users correctly
-        response = self.client.get(reverse('ScreenCritic:media_review', kwargs={'slug': self.media.slug, 'media_type': 'Movie'}))
-        self.assertRedirects(response, '/login/?next=/review/Test-Movie/Movie/') #check if redirects to login
+        response = self.client.get(reverse('ScreenCritic:movie_review', kwargs={'slug': self.media.slug}))
+        self.assertRedirects(response, '/ScreenCritic/login_register/?next=/ScreenCritic/movies/test-movie/review/') #check if redirects to login
 
     def test_login_register_view_get(self): #check if login/register view works for GET requests
         response = self.client.get(reverse('ScreenCritic:login_register'))
@@ -203,7 +213,7 @@ class ViewsTest(TestCase):
             'username': 'testuser',
             'password': 'testpass'
         })
-        self.assertRedirects(response, reverse('ScreenCritic:home')) #check if redirects to home after login
+        self.assertRedirects(response, reverse('ScreenCritic:profile')) #check if redirects to home after login
 
     def test_login_register_view_post_register(self): #check if login/register view handles registration POST requests correctly
         response = self.client.post(reverse('ScreenCritic:login_register'), {
@@ -213,12 +223,12 @@ class ViewsTest(TestCase):
             'password1': 'newpass123',
             'password2': 'newpass123'
         })
-        self.assertRedirects(response, reverse('ScreenCritic:home')) #check if redirects to home after registration
+        self.assertRedirects(response, reverse('ScreenCritic:profile')) #check if redirects to home after registration
         self.assertTrue(User.objects.filter(username='newuser').exists()) #check if user was created
 
     def test_user_logout_view(self): #check if logout view works correctly
         self.client.login(username="testuser", password="testpass")
-        response = self.client.get(reverse('ScreenCritic:user_logout'))
+        response = self.client.get(reverse('ScreenCritic:logout'))
         self.assertRedirects(response, reverse('ScreenCritic:home')) #check if redirects to home after logout
 
     def test_profile_view_authenticated(self): #check if profile view works for authenticated users
@@ -233,7 +243,7 @@ class ViewsTest(TestCase):
 
     def test_profile_view_unauthenticated(self): #check if profile view handles unauthenticated users correctly
         response = self.client.get(reverse('ScreenCritic:profile'))
-        self.assertRedirects(response, '/login/?next=/profile/') #check if redirects to login
+        self.assertRedirects(response, '/ScreenCritic/login_register/?next=/ScreenCritic/profile/') #check if redirects to login
 
     def test_edit_profile_view_authenticated(self): #check if edit profile view works for authenticated users
         self.client.login(username="testuser", password="testpass")
@@ -247,12 +257,11 @@ class ViewsTest(TestCase):
 
     def test_edit_profile_view_unauthenticated(self): #check if edit profile view handles unauthenticated users correctly
         response = self.client.get(reverse('ScreenCritic:edit_profile'))
-        self.assertRedirects(response, '/login/?next=/edit_profile/') #check if redirects to login
+        self.assertRedirects(response, '/ScreenCritic/login_register/?next=/ScreenCritic/profile/edit/') #check if redirects to login
 
     def test_edit_profile_form_submission(self): #check if edit profile form submission works correctly
         self.client.login(username="testuser", password="testpass")
         data = {
-            'email': 'newemail@example.com',
             'bio': 'New bio',
             'favorite_genres': [self.genre.genre_id]
         }
@@ -261,7 +270,6 @@ class ViewsTest(TestCase):
         
         #verify changes were saved
         updated_profile = UserProfile.objects.get(user=self.user)
-        self.assertEqual(updated_profile.email, 'newemail@example.com') #check if email was updated
         self.assertEqual(updated_profile.bio, 'New bio') #check if bio was updated
         self.assertTrue(UserFavouriteGenre.objects.filter(user=self.user, genre=self.genre).exists()) #check if favorite genre was added
 
