@@ -1,12 +1,27 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Count, Avg
+from django.contrib.auth.models import User
+from django.contrib.auth import login, authenticate, logout
+from ScreenCritic.forms import  LoginForm, ProfileEditForm, RegisterForm, ReviewForm
+from ScreenCritic.models import Genre, Media, Review, ReviewLike, UserProfile
+from django.contrib import messages
+from ScreenCritic.models import Media, Review, ReviewLike, UserFavouriteGenre
+from django.urls import reverse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse, JsonResponse
+from django.db.models import Count, Avg
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile, Review, Media, Genre, UserFavouriteGenre, ReviewLike
 from .forms import ProfileEditForm
 
+
+from ScreenCritic.templatetags.custom_filters import route_name
+
+
+# Create your views here.
 def home(request):
-    return render(request, 'ScreenCritic/index.html')
+    return render(request, 'ScreenCritic/base.html')
 
 def movie_list(request):
     movies = Media.objects.filter(type='Movie').order_by('-release_date')
@@ -156,8 +171,101 @@ def like_review(request, review_id):
     else:
         liked_status = True
 
-    like_count = ReviewLike.objects.filter(review=review).count()
-    return JsonResponse({'likes': like_count, 'liked': liked_status})
+    like_count = ReviewLike.objects.filter(review=review).count() #get the number of likes for the review
+    return JsonResponse({'likes': like_count, 'liked': liked_status}) #return the number of likes and the liked status
+
+
+def media_review(request, slug, media_type=None):
+    if not media_type:
+        # Fallback for when media_type isn't in URL
+        media = get_object_or_404(Media, slug=slug)
+        media_type = media.type
+    else:
+        media = get_object_or_404(Media, slug=slug, type=media_type)
+    
+    if not request.user.is_authenticated:
+        messages.error(request, "You need to login to submit a review.")
+        return redirect('ScreenCritic:login_register')
+    
+    if Review.objects.filter(user=request.user, media=media).exists():
+        messages.warning(request, "You've already reviewed this media.")
+        return redirect(route_name(media_type), slug=slug)
+    
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.media = media
+            review.save()
+            messages.success(request, "Your review has been submitted!")
+            return redirect(route_name(media_type), slug=slug)
+    else:
+        form = ReviewForm()
+    
+    return render(request, 'ScreenCritic/write_review.html', {'form': form, 'media': media})
+
+def login_register(request):
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
+        # Handle login
+        if form_type == 'login':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(username=username, password=password)
+            if user:
+                login(request, user)
+                messages.success(request, "Logged in successfully!")
+                return redirect('ScreenCritic:home')
+            else:
+                messages.error(request, "Invalid username or password")
+                return redirect('ScreenCritic:login_register')
+        
+        # Handle registration
+        elif form_type == 'register':
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password1 = request.POST.get('password1')
+            password2 = request.POST.get('password2')
+            
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "Username already exists")
+                return redirect('ScreenCritic:login_register')
+            
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "Email already in use")
+                return redirect('ScreenCritic:login_register')
+            
+            if password1 != password2:
+                messages.error(request, "Passwords don't match")
+                return redirect('ScreenCritic:login_register')
+            
+            try:
+                user = User.objects.create_user(username=username, email=email, password=password1)
+                UserProfile.objects.create(user=user, email=email)
+                login(request, user)
+                messages.success(request, "Account created successfully!")
+                return redirect('ScreenCritic:home')
+            except Exception as e:
+                messages.error(request, f"Error creating account: {str(e)}")
+                return redirect('ScreenCritic:login_register')
+
+    # For GET requests, still provide the forms for template rendering
+    login_form = LoginForm()
+    register_form = RegisterForm()
+    
+    context = {
+        'login_form': login_form,
+        'register_form': register_form
+    }
+    return render(request, 'ScreenCritic/login_register.html', context)
+
+def user_logout(request):
+    # Since we know the user is logged in, we can now just log them out.
+    logout(request)
+    # Take the user back to the homepage.
+    return redirect(reverse('ScreenCritic:home'))
 
 @login_required
 def profile_view(request):
