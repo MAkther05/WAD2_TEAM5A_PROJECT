@@ -13,7 +13,7 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Count, Avg
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile, Review, Media, Genre, UserFavouriteGenre, ReviewLike
-from .forms import ProfileEditForm
+from .forms import ProfileEditForm, UserDeleteForm
 
 
 from ScreenCritic.templatetags.custom_filters import route_name
@@ -155,6 +155,8 @@ def media_detail(request, slug, media_type):
     }
     return render(request, 'ScreenCritic/title.html', context)
 
+
+@login_required
 def like_review(request, review_id):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
@@ -174,7 +176,7 @@ def like_review(request, review_id):
     like_count = ReviewLike.objects.filter(review=review).count() #get the number of likes for the review
     return JsonResponse({'likes': like_count, 'liked': liked_status}) #return the number of likes and the liked status
 
-
+@login_required
 def media_review(request, slug, media_type=None):
     if not media_type:
         # Fallback for when media_type isn't in URL
@@ -261,6 +263,8 @@ def login_register(request):
     }
     return render(request, 'ScreenCritic/login_register.html', context)
 
+
+@login_required
 def user_logout(request):
     # Since we know the user is logged in, we can now just log them out.
     logout(request)
@@ -340,3 +344,21 @@ def edit_profile(request):
         "genres": genres,
         "user_favorite_genres": user_favorite_genres,
     })
+
+
+@login_required
+def deleteuser(request):
+    if request.method == 'POST':
+        delete_form = UserDeleteForm(request.POST, instance=request.user)
+        user = request.user
+        user.delete()
+        messages.info(request, 'Your account has been deleted.')
+        return redirect('ScreenCritic:home')
+    else:
+        delete_form = UserDeleteForm(instance=request.user)
+
+    context = {
+        'delete_form': delete_form
+    }
+
+    return render(request, 'ScreenCritic/delete_account.html', context)
