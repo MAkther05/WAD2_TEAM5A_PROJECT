@@ -6,6 +6,8 @@
 {% block title_block %}
 <title>Home - ScreenCritic</title>
 <link rel="stylesheet" href="{% static 'css/index.css' %}">
+<script src="{% static 'js/carousel.js' %}"></script>
+
 {% endblock %}
 
 
@@ -14,9 +16,33 @@
 <div class="page-container">
 
 <div class="left-section">
+
+
+<h1>Top Rated Media</h1>
+
+<!-- Custom Carousel -->
+
+<div class="carousel-container">
+    <div class="carousel-track">
+        {% for media in top_rated_media %}
+        <div class="carousel-item">
+            <a href="{% url media.type|route_name slug=media.slug %}">
+                <img src="{{ media.cover_image }}" alt="{{ media.title }}">
+            </a>
+            <p class="carousel-title">{{ media.title }}</p>
+            <p class="carousel-title">⭐ {{ media.average_rating|floatformat:1 }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <button class="carousel-btn prev">&#10094;</button>
+    <button class="carousel-btn next">&#10095;</button>
+</div>
+
+    
+    
  <!-- Top Movies -->
  <div class="media-section">
-    <h2>Top Movies</h2>
+    <h1>Top Movies</h1>
     <div class="media-scroll">
         {% for media_item in trending_movies %}
         <div class="media-item">
@@ -31,7 +57,7 @@
 
  <!-- Top TV Shows -->
  <div class="media-section">
-    <h2>Top TV Shows</h2>
+    <h1>Top TV Shows</h1>
     <div class="media-scroll">
         {% for media_item in trending_shows %}
         <div class="media-item">
@@ -46,7 +72,7 @@
 
  <!-- Top Movies -->
  <div class="media-section">
-    <h2>Top Video Games</h2>
+    <h1>Top Video Games</h1>
     <div class="media-scroll">
         {% for media_item in trending_games %}
         <div class="media-item">
@@ -61,22 +87,28 @@
 
 </div>
 
+
 <!-- Upcoming Releases -->
 <div class="right-section">
-    <div>
-        <h2>TESTING SECTION</h2>
-        <div class="media-scroll">
-            {% for media_item in upcoming_media %}
-            <div class="media-item">
+    <h1>Upcoming Releases</h1>
+    <div class="upcoming-media">
+        {% for media_item in upcoming_media %}
+        <div class="upcoming-item">
+            <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+            <div class="upcoming-info">
                 <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                    <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
-                    <p class="media_title">{{ media_item.title }}</p>
+                    <h3>{{ media_item.title }}</h3>
                 </a>
+                <p>{{ media_item.description|truncatewords:20 }}</p>
+                <p><strong>Release Date:</strong> {{ media_item.release_date|date:"F d, Y" }}</p>
             </div>
-            {% endfor %}
         </div>
+        {% empty %}
+        <p>No upcoming releases.</p>
+        {% endfor %}
     </div>
 </div>
+
 
 
 

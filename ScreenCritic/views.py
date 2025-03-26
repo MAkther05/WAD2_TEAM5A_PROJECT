@@ -14,8 +14,10 @@ from .templatetags.custom_filters import route_name
 
 def home(request):
 
+    top_rated_media = Media.objects.annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:5]
+
     upcoming_media = Media.objects.filter(release_date__gt=now()).annotate(
-        avg_rating=Avg('review__rating')).order_by('-avg_rating')[:5]
+        avg_rating=Avg('review__rating')).order_by('-avg_rating')[:10]
 
     trending_movies = Media.objects.filter(type='Movie').annotate(
         avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
@@ -31,16 +33,12 @@ def home(request):
         'trending_shows': trending_shows,
         'trending_games': trending_games,
         'upcoming_media': upcoming_media,
+        'top_rated_media': top_rated_media
 
     }
 
     return render(request, 'ScreenCritic/index.html', context)
 
-
-
-# Create your views here.
-def home(request): #render the home page
-    return render(request, 'ScreenCritic/base.html')
 
 def movie_list(request): #display list of movies with sorting and filtering options
     movies = Media.objects.filter(type='Movie').order_by('-release_date') #get all movies ordered by release date
