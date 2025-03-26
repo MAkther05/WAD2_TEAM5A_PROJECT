@@ -37,13 +37,13 @@
                 </div>
             </div>
             {% if user.is_authenticated %}
-        {% comment %} <a href="{% url 'ScreenCritic:profile' %}" class="profile-link">
+            <a href="{% url 'ScreenCritic:profile' %}" class="profile-link">
             {% if user.userprofile.profile_picture %}
                 <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile" class="profile-pic">
-            {% else %} {% endcomment %}
+            {% else %}
                 <img src="{% static 'images/default_profile.png' %}" alt="Profile" class="profile-pic">
-            {% comment %} {% endif %} {% endcomment %}
-        {% comment %} </a> {% endcomment %}
+            {% endif %} 
+            </a> 
     {% else %}
         <a href={% url 'ScreenCritic:login_register' %} class="login-btn">Login / Signup</a>
     {% endif %}
