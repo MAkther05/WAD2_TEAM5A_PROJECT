@@ -1,12 +1,8 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, JsonResponse
-from django.db.models import Count, Avg
+
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 from ScreenCritic.forms import  LoginForm, ProfileEditForm, RegisterForm, ReviewForm
-from ScreenCritic.models import Genre, Media, Review, ReviewLike, UserProfile
 from django.contrib import messages
-from ScreenCritic.models import Media, Review, ReviewLike, UserFavouriteGenre
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
@@ -15,8 +11,8 @@ from django.contrib.auth.decorators import login_required
 from .models import UserProfile, Review, Media, Genre, UserFavouriteGenre, ReviewLike
 from .forms import ProfileEditForm
 from django.views.decorators.http import require_GET
-
 from ScreenCritic.templatetags.custom_filters import route_name
+from django.templatetags.static import static
 
 
 # Create your views here.
@@ -182,15 +178,15 @@ def media_review(request, slug, media_type=None):
         media_type = media.type
     else:
         media = get_object_or_404(Media, slug=slug, type=media_type)
-    
+
     if not request.user.is_authenticated:
         messages.error(request, "You need to login to submit a review.")
         return redirect('ScreenCritic:login_register')
-    
+
     if Review.objects.filter(user=request.user, media=media).exists():
         messages.warning(request, "You've already reviewed this media.")
         return redirect(route_name(media_type), slug=slug)
-    
+
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -202,13 +198,13 @@ def media_review(request, slug, media_type=None):
             return redirect(route_name(media_type), slug=slug)
     else:
         form = ReviewForm()
-    
+
     return render(request, 'ScreenCritic/write_review.html', {'form': form, 'media': media})
 
 def login_register(request):
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
-        
+
         # Handle login
         if form_type == 'login':
             username = request.POST.get('username')
@@ -221,26 +217,26 @@ def login_register(request):
             else:
                 messages.error(request, "Invalid username or password")
                 return redirect('ScreenCritic:login_register')
-        
+
         # Handle registration
         elif form_type == 'register':
             username = request.POST.get('username')
             email = request.POST.get('email')
             password1 = request.POST.get('password1')
             password2 = request.POST.get('password2')
-            
+
             if User.objects.filter(username=username).exists():
                 messages.error(request, "Username already exists")
                 return redirect('ScreenCritic:login_register')
-            
+
             if User.objects.filter(email=email).exists():
                 messages.error(request, "Email already in use")
                 return redirect('ScreenCritic:login_register')
-            
+
             if password1 != password2:
                 messages.error(request, "Passwords don't match")
                 return redirect('ScreenCritic:login_register')
-            
+
             try:
                 user = User.objects.create_user(username=username, email=email, password=password1)
                 UserProfile.objects.create(user=user, email=email)
@@ -254,7 +250,7 @@ def login_register(request):
     # For GET requests, still provide the forms for template rendering
     login_form = LoginForm()
     register_form = RegisterForm()
-    
+
     context = {
         'login_form': login_form,
         'register_form': register_form
@@ -268,9 +264,14 @@ def user_logout(request):
     return redirect(reverse('ScreenCritic:home'))
 
 @login_required
-def profile_view(request):
-    user_profile = UserProfile.objects.filter(user=request.user).first()
-    favorite_genres = UserFavouriteGenre.objects.filter(user=request.user)
+def profile_view(request, username=None):
+    if username:
+        user = get_object_or_404(User, username=username)
+    else:
+        user = request.user
+
+    user_profile = UserProfile.objects.filter(user=user).first()
+    favorite_genres = UserFavouriteGenre.objects.filter(user=user)
     active_tab = request.GET.get("tab", "reviewed")
     sort_option = request.GET.get("sort", "rating-desc")
 
@@ -292,18 +293,19 @@ def profile_view(request):
 
     if active_tab == "to-review":
         user_genres = [fav.genre for fav in favorite_genres]
-        to_review_media = Media.objects.filter(genres__in=user_genres).distinct().exclude(review__user=request.user)
+        to_review_media = Media.objects.filter(genres__in=user_genres).distinct().exclude(review__user=user)
         context["to_review_media"] = to_review_media
     elif active_tab == "liked":
-        liked_reviews = Review.objects.filter(reviewlike__user=request.user).order_by(order_by_field)
-        liked_review_ids = ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True)
+        liked_reviews = Review.objects.filter(reviewlike__user=user).order_by(order_by_field)
+        liked_review_ids = ReviewLike.objects.filter(user=user).values_list('review_id', flat=True)
         context["liked_reviews"] = liked_reviews
         context["liked_review_ids"] = list(liked_review_ids)
     else:
-        reviewed_reviews = Review.objects.filter(user=request.user).order_by(order_by_field)
+        reviewed_reviews = Review.objects.filter(user=user).order_by(order_by_field)
         context["reviewed_reviews"] = reviewed_reviews
 
     return render(request, "ScreenCritic/profile.html", context)
+
 
 @login_required
 def edit_profile(request):
@@ -345,13 +347,40 @@ def edit_profile(request):
 def live_search(request):
     query = request.GET.get('q', '')
 
-    # Top 5 matching users and media
-    user_matches = User.objects.filter(username__icontains=query)[:5]
+    user_matches = UserProfile.objects.filter(user__username__icontains=query)[:5]
     media_matches = Media.objects.filter(title__icontains=query)[:5]
 
+    def resolve_image(value, fallback):
+        #if the picture is missing default image is used
+        if not value:
+            return fallback
+        #convert to string
+        value = str(value)
+        if value.startswith('http'):
+            return value
+        #return the url of the django file object
+        if hasattr(value, 'url'):
+            return value.url
+        #if not both return fallback
+        return fallback
+
     results = {
-        'users': [{'username': user.username} for user in user_matches],
-        'media': [{'title': media.title, 'slug': media.slug, 'type': media.type} for media in media_matches]
+        'users': [
+            {
+                'username': u.user.username,
+                'profile_picture': resolve_image(u.profile_picture, '/static/images/default_profile.png')
+            }
+            for u in user_matches
+        ],
+        'media': [
+            {
+                'title': m.title,
+                'slug': m.slug,
+                'type': m.type,
+                'cover_image': resolve_image(m.cover_image, '/static/images/logo.png')
+            }
+            for m in media_matches
+        ]
     }
 
     return JsonResponse(results)

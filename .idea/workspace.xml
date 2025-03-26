@@ -9,7 +9,7 @@
       <change beforePath="$PROJECT_DIR$/ScreenCritic/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScreenCritic/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ScreenCritic/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScreenCritic/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/styles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/ScreenCritic/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/ScreenCritic/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/search.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/search.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
