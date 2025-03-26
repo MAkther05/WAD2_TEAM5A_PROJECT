@@ -9,8 +9,6 @@
 
 
 {% block content %}
-
-
 <!-- Suggested for you based on user's genre preferences -->
 {% if user.is_authenticated and suggested_movies %}
 <div class="media-section">
@@ -19,7 +17,12 @@
         {% for media_item in suggested_movies %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <img src="{{ media_item.cover_image }}" 
+                     alt="{{ media_item.title }}"
+                     width="180"
+                     height="270"
+                     loading="lazy"
+                     class="media-image">
                 <p class="media_title">{{ media_item.title }}</p>
             </a>
         </div>
@@ -36,7 +39,12 @@
         {% for media_item in trending_movies %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <img src="{{ media_item.cover_image }}" 
+                     alt="{{ media_item.title }}"
+                     width="180"
+                     height="270"
+                     loading="lazy"
+                     class="media-image">
                 <p class="media_title">{{ media_item.title }}</p>
             </a>
         </div>
@@ -52,7 +60,12 @@
         {% for media_item in movies_alphabetically %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <img src="{{ media_item.cover_image }}" 
+                     alt="{{ media_item.title }}"
+                     width="180"
+                     height="270"
+                     loading="lazy"
+                     class="media-image">
                 <p>{{ media_item.title }}</p>
             </a>
         </div>
@@ -69,7 +82,12 @@
         {% for media_item in movies %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <img src="{{ media_item.cover_image }}" 
+                     alt="{{ media_item.title }}"
+                     width="180"
+                     height="270"
+                     loading="lazy"
+                     class="media-image">
                 <p>{{ media_item.title }}</p>
             </a>
         </div>
@@ -77,7 +95,4 @@
     </div>
 </div>
 {% endfor %}
-
-
-
 {% endblock %}

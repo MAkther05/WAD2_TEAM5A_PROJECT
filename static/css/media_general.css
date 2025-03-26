@@ -9,6 +9,7 @@
     overflow-x: auto;
     white-space: nowrap;
     padding: 10px;
+    scroll-behavior: smooth;
 }
 
 .media-item {
@@ -20,11 +21,12 @@
     width: 180px;
 }
 
-.media-item img {
-    width: 180px; /* Adjust .media-item p when this is changed */
+.media-image {
+    width: 180px;
     height: 270px;
     object-fit: cover;
     border-radius: 5px;
+    background-color: #f0f0f0;
 }
 
 .media-item a {
@@ -33,7 +35,7 @@
 }
 
 .media-item p {
-    max-width: 180px; /* Keep text width equal to image */
+    max-width: 180px;
     overflow: hidden;
     word-break: break-word;
     text-align: center; 

@@ -293,11 +293,15 @@ def profile_view(request): #display user profile
     else:
         order_by_field = "-rating"
 
+    # Get liked reviews IDs for all tabs
+    liked_review_ids = list(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True))
+
     context = {
         "user_profile": user_profile,
         "favorite_genres": favorite_genres,
         "active_tab": active_tab,
         "current_sort": sort_option,
+        "liked_reviews_ids": liked_review_ids,
     }
 
     if active_tab == "to-review": #handle to-review tab
@@ -306,9 +310,7 @@ def profile_view(request): #display user profile
         context["to_review_media"] = to_review_media
     elif active_tab == "liked": #handle liked tab
         liked_reviews = Review.objects.filter(reviewlike__user=request.user).order_by(order_by_field)
-        liked_review_ids = ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True)
         context["liked_reviews"] = liked_reviews
-        context["liked_review_ids"] = list(liked_review_ids)
     else: #handle reviewed tab
         reviewed_reviews = Review.objects.filter(user=request.user).order_by(order_by_field)
         context["reviewed_reviews"] = reviewed_reviews
