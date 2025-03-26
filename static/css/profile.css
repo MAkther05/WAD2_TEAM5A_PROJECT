@@ -1,0 +1,187 @@
+ html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+/* Center the entire profile area */
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 1000px;
+    margin: 30px auto;
+    gap: 30px;
+}
+
+/* Sidebar with fixed width and clean spacing */
+.profile-sidebar {
+    flex: 0 0 250px;
+    background: #f3f3f3;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Profile image */
+.profile-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+/* Name and single-line count */
+.profile-sidebar h2 {
+    margin: 10px 0 5px;
+}
+
+.review-count {
+    font-size: 14px;
+    color: gray;
+    margin-bottom: 15px;
+}
+
+/* Bio + genres box */
+.bio-box, .genre-box {
+    text-align: left;
+    margin-top: 20px;
+}
+
+/* Edit profile button */
+.edit-btn {
+    padding: 10px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-align: center;
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+}
+
+.edit-btn:hover{
+    background-color: #2a66d9;
+}
+
+/* Main content */
+.profile-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Tab navigation */
+.tab-nav {
+    margin-bottom: 20px;
+}
+
+.tab-nav a {
+    margin-right: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+}
+
+.tab-nav a.active {
+    color: #3366ff;
+    border-bottom: 2px solid #3366ff;
+    padding-bottom: 2px;
+}
+
+/* Sort bar */
+.sort-form {
+    margin-bottom: 10px;
+}
+
+/* Scrollable review area */
+.review-scroll {
+    max-height: 690px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Review card styling */
+.review-card {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Media image */
+.media-img {
+    width: 90px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+/* Review text area */
+.review-content {
+    flex: 1;
+}
+
+/* Like heart */
+.like-btn {
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.2s ease, color 0.2s ease;
+    color: black;
+}
+
+.like-btn:hover {
+    transform: scale(1.2);
+    color: red;
+}
+
+.like-btn.liked {
+    color: red;
+}
+
+/* Header for each review */
+.review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+/* Username + picture */
+.review-user {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.username-plain {
+    font-weight: bold;
+}

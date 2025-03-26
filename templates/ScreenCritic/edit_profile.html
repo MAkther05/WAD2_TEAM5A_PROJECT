@@ -1,0 +1,159 @@
+{% extends "ScreenCritic/base.html" %}
+{% load static %}
+
+{% block title_block %}
+<title>Edit Profile - ScreenCritic</title>
+<link rel="stylesheet" href="{% static 'css/edit_profile.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile-wrapper">
+    <!-- LEFT: Picture, Bio, Genres -->
+    <div class="edit-left">
+        <form method="POST" enctype="multipart/form-data" class="edit-profile-form">
+            {% csrf_token %}
+
+            <!-- Profile Picture -->
+            <div class="profile-pic-container">
+                {% if user_profile.profile_picture %}
+                    <img id="profile-preview" src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
+                {% else %}
+                    <img id="profile-preview" src="{% static 'images/default_profile.png' %}" alt="Default Picture">
+                {% endif %}
+            </div>
+
+            <!-- Upload New Picture -->
+            <div class="form-group">
+                <label for="profile_picture">Upload Picture:</label>
+                <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+            </div>
+
+            <!-- Remove Picture -->
+            {% if user_profile.profile_picture %}
+            <div class="form-group checkbox-row">
+                <input type="checkbox" id="delete_picture" name="delete_picture" value="1">
+                <label for="delete_picture">Remove Profile Picture</label>
+            </div>
+            {% endif %}
+
+            <!-- Bio -->
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea id="bio" name="bio" maxlength="390">{{ user_profile.bio }}</textarea>
+                <p id="word-count">0 / 65 words</p>
+            </div>
+
+            <!-- Genres -->
+            <div class="form-group">
+                <label for="genre-select">Favorite Genres:</label>
+                <select id="genre-select">
+                    <option value="">Select a genre</option>
+                    {% for genre in genres %}
+                        <option value="{{ genre.genre_id }}">{{ genre.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <div id="selected-genres" class="selected-genres-container">
+                    {% for fav in user_favorite_genres %}
+                        <button type="button" class="genre-button" data-id="{{ fav.genre.genre_id }}">
+                            {{ fav.genre.name }} ✕
+                        </button>
+                    {% endfor %}
+                </div>
+                <div id="selected-genre-inputs"></div>
+            </div>
+
+            <!-- Save -->
+            <button type="submit" class="save-changes-btn">Save Changes</button>
+        </form>
+    </div>
+
+    <!-- RIGHT: Preview (Optional) -->
+    <div class="edit-right">
+        <h2>Edit your ScreenCritic profile</h2>
+        <p>You can update your bio, profile picture and favorite genres here. These will appear on your public profile page.</p>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const bioTextarea = document.getElementById("bio");
+    const wordCountDisplay = document.getElementById("word-count");
+    const genreSelect = document.getElementById("genre-select");
+    const selectedGenresContainer = document.getElementById("selected-genres");
+    const selectedGenreInputs = document.getElementById("selected-genre-inputs");
+    const removedGenres = new Set();
+
+    const removedGenresInput = document.createElement("input");
+    removedGenresInput.type = "hidden";
+    removedGenresInput.name = "removed_genres";
+    removedGenresInput.value = "";
+    selectedGenreInputs.appendChild(removedGenresInput);
+
+    function updateWordCount() {
+        const words = bioTextarea.value.trim().split(/\s+/).filter(Boolean);
+        wordCountDisplay.textContent = `${words.length} / 65 words`;
+    }
+
+    bioTextarea.addEventListener("input", updateWordCount);
+    updateWordCount();
+
+    function addGenre(genreId, genreName, preloaded = false) {
+        if (document.querySelector(`button[data-id='${genreId}']`)) return;
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.classList.add("genre-button");
+        button.setAttribute("data-id", genreId);
+        button.innerHTML = `${genreName} ✕`;
+
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "favorite_genres";
+        hiddenInput.value = genreId;
+        hiddenInput.setAttribute("data-id", `input-${genreId}`);
+
+        button.addEventListener("click", function () {
+            button.remove();
+            hiddenInput.remove();
+            removedGenres.add(genreId);
+            removedGenresInput.value = Array.from(removedGenres).join(",");
+        });
+
+        selectedGenresContainer.appendChild(button);
+        selectedGenreInputs.appendChild(hiddenInput);
+
+        if (!preloaded) {
+            genreSelect.selectedIndex = 0;
+        }
+    }
+
+    genreSelect.addEventListener("change", function () {
+        const genreId = this.value;
+        const genreName = this.options[this.selectedIndex].text;
+        if (genreId) addGenre(genreId, genreName);
+    });
+
+// Preloaded genres from template
+    document.querySelectorAll("#selected-genres .genre-button").forEach(button => {
+        const genreId = button.getAttribute("data-id");
+        const genreName = button.textContent.replace("✕", "").trim();
+
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "favorite_genres";
+        hiddenInput.value = genreId;
+        hiddenInput.setAttribute("data-id", `input-${genreId}`);
+        selectedGenreInputs.appendChild(hiddenInput);
+
+        button.addEventListener("click", function () {
+            button.remove();
+            hiddenInput.remove();
+            removedGenres.add(genreId);
+            removedGenresInput.value = Array.from(removedGenres).join(",");
+        });
+    });
+});
+</script>
+{% endblock %}

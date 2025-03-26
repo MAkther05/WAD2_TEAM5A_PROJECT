@@ -1,0 +1,123 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 30px;
+  background-color: #f2f2f2;
+}
+
+.edit-profile-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 30px;
+  background-color: #f2f2f2;
+  width: 100%;
+  flex: 1;
+}
+
+/* LEFT PANEL */
+.edit-left {
+    width: 400px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.edit-profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.profile-pic-container img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto 20px;
+}
+
+.form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+textarea, input[type="file"], select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+#word-count {
+    font-size: 12px;
+    color: #777;
+    margin-top: 5px;
+}
+
+/* Genre Buttons */
+.selected-genres-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.genre-button {
+    background-color: #e0e0e0;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.genre-button:hover {
+    background-color: #ccc;
+}
+
+.save-changes-btn {
+    padding: 10px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.save-changes-btn:hover {
+    background-color: #2a66d9;
+}
+
+/* Checkbox styling */
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* RIGHT PANEL */
+.edit-right {
+    max-width: 400px;
+    padding: 20px;
+}
