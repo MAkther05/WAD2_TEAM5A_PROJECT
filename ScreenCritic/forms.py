@@ -8,14 +8,10 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ['rating', 'review']
         widgets = {
-            'rating': forms.RadioSelect(choices=[
-                (1, '⭐'),
-                (2, '⭐⭐'),
-                (3, '⭐⭐⭐'),
-                (4, '⭐⭐⭐⭐'),
-                (5, '⭐⭐⭐⭐⭐')
-            ]),
-            'review': forms.Textarea(attrs={'placeholder': 'Write your review here...', 'rows': 4, 'cols': 50})
+            'review': forms.Textarea(attrs={
+                'placeholder': 'Write your detailed review here...',
+                'rows': 5
+            })
         }
 
 class LoginForm(AuthenticationForm):

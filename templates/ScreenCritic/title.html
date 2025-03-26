@@ -28,13 +28,22 @@
                     <span>{{ total_ratings }} ratings</span> • 
                     <span>{{ text_reviews_count }} reviews</span>
                 </div>                                 
-                    {% with media.type|route_name_review as review_url %}
-                        {% if review_url %}
-                            <a class="review-btn" href="{% url review_url slug=media.slug %}"> Review</a>
+                {% with media.type|route_name_review as review_url %}
+                {% if review_url %}
+                    {% if user.is_authenticated %}
+                        {% if not user_has_reviewed %}
+                            <a class="review-btn" href="{% url review_url slug=media.slug %}">Write a Review</a>
                         {% else %}
-                            <p>No review link available</p>
+                            <button class="review-btn" disabled>Already Reviewed</button>
                         {% endif %}
-                    {% endwith %}
+                    {% else %}
+                        <a class="review-btn" href="{% url 'ScreenCritic:login_register' %}?next={% url review_url slug=media.slug %}">Login to Review</a>
+                    {% endif %}
+                {% else %}
+                    <p>No review link available</p>
+                {% endif %}
+            {% endwith %}
+            
             </div>
         </div>
 

@@ -9,6 +9,8 @@ from django.contrib import messages
 from ScreenCritic.models import Media, Review, ReviewLike, UserFavouriteGenre
 from django.urls import reverse
 
+from ScreenCritic.templatetags.custom_filters import route_name
+
 
 # Create your views here.
 def home(request):
@@ -177,8 +179,23 @@ def like_review(request, review_id):
     return JsonResponse({'likes': like_count, 'liked': liked_status}) #return the number of likes and the liked status
 
 
-def media_review(request, slug, media_type):
-    media = get_object_or_404(Media, slug=slug, type=media_type)
+def media_review(request, slug, media_type=None):
+    # media_type comes from URL kwargs if using the generic URL
+    # or from the URL pattern if using the specific URLs (tv_review, movie_review, etc.)
+    if not media_type:
+        # Fallback for when media_type isn't in URL
+        media = get_object_or_404(Media, slug=slug)
+        media_type = media.type
+    else:
+        media = get_object_or_404(Media, slug=slug, type=media_type)
+    
+    if not request.user.is_authenticated:
+        messages.error(request, "You need to login to submit a review.")
+        return redirect('ScreenCritic:login_register')
+    
+    if Review.objects.filter(user=request.user, media=media).exists():
+        messages.warning(request, "You've already reviewed this media.")
+        return redirect(route_name(media_type), slug=slug)
     
     if request.method == 'POST':
         form = ReviewForm(request.POST)
@@ -187,12 +204,12 @@ def media_review(request, slug, media_type):
             review.user = request.user
             review.media = media
             review.save()
-            return redirect('media_detail', slug=media.slug, media_type=media.type)
+            messages.success(request, "Your review has been submitted!")
+            return redirect(route_name(media_type), slug=slug)
     else:
         form = ReviewForm()
     
     return render(request, 'ScreenCritic/write_review.html', {'form': form, 'media': media})
-
 
 def login_register(request):
     if request.method == 'POST':
