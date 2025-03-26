@@ -4,9 +4,31 @@ from django.db.models import Count, Avg
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile, Review, Media, Genre, UserFavouriteGenre, ReviewLike
 from .forms import ProfileEditForm
+from django.utils.timezone import now
 
 def home(request):
-    return render(request, 'ScreenCritic/index.html')
+
+    upcoming_media = Media.objects.filter(release_date__gt=now()).annotate(
+        avg_rating=Avg('review__rating')).order_by('-avg_rating')[:5]
+
+    trending_movies = Media.objects.filter(type='Movie').annotate(
+        avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
+
+    trending_shows = Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').annotate(
+        avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
+
+    trending_games = Media.objects.filter(type='Game').annotate(
+        avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
+
+    context = {
+        'trending_movies': trending_movies,
+        'trending_shows': trending_shows,
+        'trending_games': trending_games,
+        'upcoming_media': upcoming_media,
+
+    }
+
+    return render(request, 'ScreenCritic/index.html', context)
 
 def movie_list(request):
     movies = Media.objects.filter(type='Movie').order_by('-release_date')

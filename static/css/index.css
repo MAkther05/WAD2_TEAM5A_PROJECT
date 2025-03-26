@@ -1,0 +1,82 @@
+.page-container {
+    display: flex;  /* Enables flexbox layout */
+    justify-content: space-between; /* Adds spacing between sections */
+    align-items: flex-start; /* Aligns items to the top */
+    max-width: 98%;
+    margin: auto;
+    padding: 20px;
+    
+}
+
+/* Left Section */
+
+.left-section{
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    flex-basis: 40%;
+    flex-shrink: 0;
+    margin-top: 40px;
+}
+
+.media-section {
+    margin-top: 40px;
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.media-scroll {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
+}
+
+.media-item {
+    text-align: center;
+    margin-right: 15px;
+    flex: 0 0 auto;
+    flex-direction: column;
+    display: block;
+    width: 180px;
+}
+
+.media-item img {
+    width: 180px; /* Adjust .media-item p when this is changed */
+    height: 270px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.media-item a {
+    text-decoration: none;
+    color: black;
+}
+
+.media-item p {
+    max-width: 180px; /* Keep text width equal to image */
+    overflow: hidden;
+    word-break: break-word;
+    text-align: center; 
+    margin-top: 5px; 
+}
+
+
+/* Upcoming Shows */
+
+.right-section {
+    margin-top: 40px;
+    width: 28%;
+    border-style: solid;
+    border-width: 5px;
+    min-height: 1500px;
+    flex: 1;
+    min-width: 400px;
+    background-color: #ADD8E6;
+
+}
+
+.upcoming-section {
+    
+    /* min-width: 200px; */
+}

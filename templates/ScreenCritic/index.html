@@ -1,111 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScreenCritic - Home</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 24px;
-        }
-        nav {
-            display: flex;
-            justify-content: center;
-            background-color: #444;
-            padding: 10px;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 18px;
-        }
-        .hero {
-            text-align: center;
-            padding: 50px;
-            background: url('/static/images/banner.jpg') no-repeat center center/cover;
-            color: white;
-            font-size: 30px;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .features {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .feature-box {
-            width: 30%;
-            padding: 20px;
-            background: #ddd;
-            text-align: center;
-            border-radius: 5px;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
+{% extends "ScreenCritic/base.html" %}
+{% load static %}
 
-    <header>ScreenCritic</header>
+{% load custom_filters %}
 
-    <nav>
-        <a href="#">Home</a>
-        <a href="#">Reviews</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
-    </nav>
+{% block title_block %}
+<title>Home - ScreenCritic</title>
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
 
-    <div class="hero">
-        <h1>Discover the Best Movies & TV Shows</h1>
-        <p>Explore detailed reviews, ratings, and more!</p>
+
+{% block content %}
+
+<div class="page-container">
+
+<div class="left-section">
+ <!-- Top Movies -->
+ <div class="media-section">
+    <h2>Top Movies</h2>
+    <div class="media-scroll">
+        {% for media_item in trending_movies %}
+        <div class="media-item">
+            <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <p class="media_title">{{ media_item.title }}</p>
+            </a>
+        </div>
+        {% endfor %}
     </div>
+</div>
 
-    <div class="container">
-        <h2>Featured Content</h2>
-        <div class="features">
-            <div class="feature-box">
-                <h3>Latest Reviews</h3>
-                <p>Stay updated with our latest reviews.</p>
+ <!-- Top TV Shows -->
+ <div class="media-section">
+    <h2>Top TV Shows</h2>
+    <div class="media-scroll">
+        {% for media_item in trending_shows %}
+        <div class="media-item">
+            <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <p class="media_title">{{ media_item.title }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+ <!-- Top Movies -->
+ <div class="media-section">
+    <h2>Top Video Games</h2>
+    <div class="media-scroll">
+        {% for media_item in trending_games %}
+        <div class="media-item">
+            <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <p class="media_title">{{ media_item.title }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</div>
+
+<!-- Upcoming Releases -->
+<div class="right-section">
+    <div>
+        <h2>TESTING SECTION</h2>
+        <div class="media-scroll">
+            {% for media_item in upcoming_media %}
+            <div class="media-item">
+                <a href="{% url media_item.type|route_name slug=media_item.slug %}">
+                    <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                    <p class="media_title">{{ media_item.title }}</p>
+                </a>
             </div>
-            <div class="feature-box">
-                <h3>Top Rated</h3>
-                <p>Check out the best-rated movies & shows.</p>
-            </div>
-            <div class="feature-box">
-                <h3>Community Picks</h3>
-                <p>See what our community loves!</p>
-            </div>
+            {% endfor %}
         </div>
     </div>
+</div>
 
-    <footer>
-        <p>&copy; 2025 ScreenCritic. All rights reserved.</p>
-    </footer>
 
-</body>
-</html>
+
+</div>
+
+
+{% endblock %}
