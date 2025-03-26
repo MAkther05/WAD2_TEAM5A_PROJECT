@@ -1,0 +1,81 @@
+{% extends 'ScreenCritic/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/login_register.css' %}">
+<div class="form-container">
+    <div class="form-column">
+        <h2>Login</h2>
+        <form method="post" action="{% url 'ScreenCritic:login_register' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="login">
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                <input type="text" name="username" id="id_username" class="form-control" placeholder="Username" required>
+                {% if login_form.username.errors %}
+                    <div class="error">{{ login_form.username.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <input type="password" name="password" id="id_password" class="form-control" placeholder="Password" required>
+                {% if login_form.password.errors %}
+                    <div class="error">{{ login_form.password.errors }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="form-button">Sign In</button>
+        </form>
+    </div>
+
+    <div class="divider">
+        <span>OR</span>
+    </div>
+
+    <div class="form-column">
+        <h2>Register</h2>
+        <form method="post" action="{% url 'ScreenCritic:login_register' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="register">
+            <div class="form-group">
+                <label for="id_register_username">Username</label>
+                <input type="text" name="username" id="id_register_username" class="form-control" placeholder="Username" required>
+                {% if register_form.username.errors %}
+                    <div class="error">{{ register_form.username.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                <input type="email" name="email" id="id_email" class="form-control" placeholder="Email" required>
+                {% if register_form.email.errors %}
+                    <div class="error">{{ register_form.email.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="id_password1">Password</label>
+                <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Password" required>
+                {% if register_form.password1.errors %}
+                    <div class="error">{{ register_form.password1.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="id_password2">Confirm Password</label>
+                <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirm Password" required>
+                {% if register_form.password2.errors %}
+                    <div class="error">{{ register_form.password2.errors }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="form-button">Create Account</button>
+        </form>
+    </div>
+</div>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
