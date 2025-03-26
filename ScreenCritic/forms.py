@@ -2,6 +2,7 @@ from django import forms
 from .models import Review, UserProfile
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from .models import UserProfile, UserFavouriteGenre, Genre
 
 class ReviewForm(forms.ModelForm):
     class Meta:
@@ -57,3 +58,14 @@ class RegisterForm(UserCreationForm):
             user.save()
             UserProfile.objects.create(user=user, email=user.email)
         return user
+
+class ProfileEditForm(forms.ModelForm):
+    favorite_genres = forms.ModelMultipleChoiceField(
+        queryset=Genre.objects.all(),  # Fetch genres instead of UserFavouriteGenre
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = UserProfile
+        fields = ['profile_picture', 'bio', 'favorite_genres']
