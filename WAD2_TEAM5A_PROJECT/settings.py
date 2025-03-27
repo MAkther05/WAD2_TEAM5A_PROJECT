@@ -129,4 +129,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Login URL
-LOGIN_URL = '/ScreenCritic/login_register/'
+LOGIN_URL = '/ScreenCritic/login_register/' \
+
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

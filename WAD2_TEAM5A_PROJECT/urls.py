@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 from ScreenCritic import views
 
 urlpatterns = [
+    path("ScreenCritic/", include("django.contrib.auth.urls")),
     path('', views.home, name='home'),
     path('admin/', admin.site.urls),
     path('ScreenCritic/', include('ScreenCritic.urls'))
