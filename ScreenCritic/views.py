@@ -29,7 +29,6 @@ from .models import (
     UserMediaSubscription
 )
 
-
 def home(request): #render the home page
     #get top rated reviews ordered by rating and likes
     top_reviews = Review.objects.annotate(like_count=Count('reviewlike')).order_by('-rating', '-like_count')[:25]
@@ -407,11 +406,23 @@ def live_search(request): #handle live search functionality
     def resolve_image(value, fallback): #helper function to resolve image URLs
         if not value:
             return fallback
-        value = str(value)
-        if value.startswith('http'):
-            return value
+            
+        # Convert to string and check for URLs first
+        raw_value = str(value)
+        if raw_value.startswith('http'):
+            return raw_value
+            
+        # Handle ImageField objects (from admin uploads)
         if hasattr(value, 'url'):
-            return value.url
+            try:
+                url = value.url
+                # If the URL was stored as a full URL, extract it from the media path
+                if 'https%3A' in url:
+                    return url.split('/media/')[-1].replace('%3A', ':')
+                return url
+            except ValueError:
+                pass
+            
         return fallback
 
     results = { #prepare search results
@@ -437,23 +448,49 @@ def live_search(request): #handle live search functionality
 
 def get_notifications(request): #handle fetching notifications for the current user
     if request.user.is_authenticated:
-        #get all released media notifications for the last 30 days
+        #get all released media notifications from the last 30 days
+        thirty_days_ago = now() - timezone.timedelta(days=30)
         subscriptions = UserMediaSubscription.objects.filter(
             user=request.user,
             is_released=True,
-            notification_date__gte=now() - timezone.timedelta(days=30)  #only show recent notifications
+            notification_date__gte=thirty_days_ago
         ).order_by('-notification_date')  #most recent first
+
+        def resolve_image(value, fallback): #helper function to resolve image URLs
+            if not value:
+                return fallback
+                
+            # Convert to string and check for URLs first
+            raw_value = str(value)
+            if raw_value.startswith('http'):
+                return raw_value
+                
+            # Handle ImageField objects (from admin uploads)
+            if hasattr(value, 'url'):
+                try:
+                    url = value.url
+                    # If the URL was stored as a full URL, extract it from the media path
+                    if 'https%3A' in url:
+                        return url.split('/media/')[-1].replace('%3A', ':')
+                    return url
+                except ValueError:
+                    pass
+                
+            return fallback
         
         #format notifications for frontend display
-        notifications = [{
-            'media_title': sub.media.title,
-            'media_type': sub.media.type,
-            'media_slug': sub.media.slug,
-            'cover_image': sub.media.cover_image if not sub.media.cover_image.url else f'/media/{sub.media.cover_image}' if sub.media.cover_image else '/static/images/logo.png',
-            'notification_date': sub.notification_date.strftime("%Y-%m-%d %H:%M:%S") if sub.notification_date else None,
-            'subscription_id': sub.id,
-            'read_by_user': sub.read_by_user  #include read status
-        } for sub in subscriptions]
+        notifications = []
+        for sub in subscriptions:
+            cover_image = resolve_image(sub.media.cover_image, '/static/images/logo.png')
+            notifications.append({
+                'media_title': sub.media.title,
+                'media_type': sub.media.type,
+                'media_slug': sub.media.slug,
+                'cover_image': cover_image,
+                'notification_date': sub.notification_date.strftime("%Y-%m-%d %H:%M:%S") if sub.notification_date else None,
+                'subscription_id': sub.id,
+                'read_by_user': sub.read_by_user
+            })
         
         return JsonResponse({'notifications': notifications})
     return JsonResponse({'notifications': []})

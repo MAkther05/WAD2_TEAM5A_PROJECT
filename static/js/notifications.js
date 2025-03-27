@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.notifications.forEach(notification => {
                     const item = document.createElement('div');
                     item.className = 'notification-item';
+                    
                     // Add clicked class if already read
                     if (notification.read_by_user) {
                         item.classList.add('clicked');
@@ -67,13 +68,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     link.className = 'notification-link';
                     
                     // Mark notification as read when clicked
-                    link.addEventListener('click', (e) => {
-                        if (!notification.read_by_user) {
+                    if (!notification.read_by_user) {
+                        link.addEventListener('click', (e) => {
                             markNotificationRead(notification.subscription_id, item);
-                        }
-                    });
+                        });
+                    }
 
-                    //add media thumbnail
                     const imgContainer = document.createElement('div');
                     imgContainer.className = 'notification-img';
                     const img = document.createElement('img');
@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     img.onerror = function() {
                         this.src = '/static/images/logo.png';  // Fallback image if main image fails to load
                     };
+                    img.loading = 'lazy';
                     imgContainer.appendChild(img);
 
                     //add notification content (title, type, message)
