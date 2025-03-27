@@ -103,7 +103,9 @@
                                 {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
                             {% endfor %}
                         </div>
+                        {% if review.review %}
                         <p>Comment: {{ review.review }}</p>
+                        {% endif %}
                         <p>
                             <span class="like-btn {% if review.review_id in liked_reviews_ids %}liked{% endif %}" data-review-id="{{ review.review_id }}">
                                 <i class="{% if review.review_id in liked_reviews_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
