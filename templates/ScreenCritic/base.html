@@ -36,7 +36,10 @@
             <div class="notification-container">
                 <img src="{% static 'images/bell.png' %}" alt="Notifications" class="notification-bell" onclick="toggleNotifications()">
                 <div id="notificationDropdown" class="notification-dropdown">
-                    You have no new notifications.
+                    <div id="notificationDropdown" class="dropdown-content">
+                        <ul></ul> <!-- Notifications will be appended here -->
+                    </div>
+                    You have no more new notifications.
                 </div>
             </div>
 

@@ -7,7 +7,7 @@
 <title>Home - ScreenCritic</title>
 <link rel="stylesheet" href="{% static 'css/index.css' %}?v=1">
 <script src="{% static 'js/carousel.js' %}"></script>
-<script src="{% static 'js/notify_me.js' %}"></script>
+<script src="{% static 'js/notifications.js' %}"></script>
 {% endblock %}
 
 
@@ -140,7 +140,9 @@
                 <p>{{ media_item.description|truncatewords:20|safe }}</p>
                 <p><strong>Release Date:</strong> {{ media_item.release_date|date:"F d, Y" }}</p>
             </div>
-            <button class="notify-btn" data-media-id="{{ media.id }}">
+            <button class="notify-btn" 
+                data-media-title="{{ media_item.title }}" 
+                data-release-date="{{ media_item.release_date }}">
                 🔔
             </button>
         </div>
