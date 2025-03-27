@@ -273,6 +273,56 @@ class ViewsTest(TestCase):
         self.assertEqual(updated_profile.bio, 'New bio') #check if bio was updated
         self.assertTrue(UserFavouriteGenre.objects.filter(user=self.user, genre=self.genre).exists()) #check if favorite genre was added
 
+    def test_deleteuser_view_get(self): #check if delete user view works for GET requests
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.get(reverse('ScreenCritic:delete_account'))
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        self.assertTemplateUsed(response, 'ScreenCritic/delete_account.html') #check if correct template is used
+        self.assertIn('delete_form', response.context) #check if delete form is in context
+
+    def test_deleteuser_view_post(self): #check if delete user view works for POST requests
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.post(reverse('ScreenCritic:delete_account'))
+        self.assertRedirects(response, reverse('ScreenCritic:home')) #check if redirects to home after deletion
+        self.assertFalse(User.objects.filter(username="testuser").exists()) #check if user was deleted
+
+    def test_deleteuser_view_unauthenticated(self): #check if delete user view handles unauthenticated users correctly
+        response = self.client.get(reverse('ScreenCritic:delete_account'))
+        self.assertRedirects(response, '/ScreenCritic/login_register/?next=/ScreenCritic/delete_account/') #check if redirects to login
+
+    def test_live_search_empty(self): #check if live search works with empty query
+        response = self.client.get(reverse('ScreenCritic:live_search'), {'q': ''})
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertIn('users', data) #check if users are in response
+        self.assertIn('media', data) #check if media is in response
+        self.assertEqual(len(data['users']), 0) #check if no users are returned
+        self.assertEqual(len(data['media']), 0) #check if no media is returned
+
+    def test_live_search_users(self): #check if live search works for users
+        response = self.client.get(reverse('ScreenCritic:live_search'), {'q': 'test'})
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertIn('users', data) #check if users are in response
+        self.assertEqual(len(data['users']), 1) #check if correct number of users is returned
+        self.assertEqual(data['users'][0]['username'], 'testuser') #check if correct user is returned
+
+    def test_live_search_media(self): #check if live search works for media
+        response = self.client.get(reverse('ScreenCritic:live_search'), {'q': 'Test'})
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertIn('media', data) #check if media is in response
+        self.assertEqual(len(data['media']), 1) #check if correct number of media items is returned
+        self.assertEqual(data['media'][0]['title'], 'Test Movie') #check if correct media is returned
+        self.assertEqual(data['media'][0]['type'], 'Movie') #check if media type is correct
+
+    def test_live_search_no_results(self): #check if live search handles no results correctly
+        response = self.client.get(reverse('ScreenCritic:live_search'), {'q': 'nonexistent'})
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertEqual(len(data['users']), 0) #check if no users are returned
+        self.assertEqual(len(data['media']), 0) #check if no media is returned
+
 class UserProfileModelTest(TestCase):
     def setUp(self): #setup test data before each test method
         #create test user
