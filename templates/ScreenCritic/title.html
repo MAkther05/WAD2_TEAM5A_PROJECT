@@ -81,12 +81,14 @@
                     <div class="review-card">
                         <div class="review-header">
                             <div class="review-user">
+                                <a href="{% url 'ScreenCritic:profile_by_username' username=review.user.username %}" class="profile-link">
                                 {% if review.user.userprofile.profile_picture %}
                                     <img src="{{ review.user.userprofile.profile_picture.url }}" alt="{{ review.user.username }}'s Profile Picture" class="profile-pic">
                                 {% else %}
                                     <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Picture" class="profile-pic">
                                 {% endif %}
                                 <strong>{{ review.user.username }}</strong>
+                                </a>
                             </div>
                             <span class="review-date">{{ review.date|date:"M d, Y" }}</span>
                         </div>
@@ -100,7 +102,9 @@
                                 {% endif %}
                             {% endfor %}
                         </div>
+                        {% if review.review %}
                         <p>Comment: {{ review.review }}</p>
+                        {% endif %}
                         <p>
                             <span class="like-btn {% if review.review_id in liked_reviews %}liked{% endif %}" data-review-id="{{ review.review_id }}">
                                 <i class="{% if review.review_id in liked_reviews %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>

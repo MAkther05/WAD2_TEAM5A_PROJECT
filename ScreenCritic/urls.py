@@ -8,6 +8,9 @@ urlpatterns = [
     path('home/', views.home, name='home'),
     path('login_register/', views.login_register, name = 'login_register'),
     path('logout/', views.user_logout, name = "logout"),
+    path('delete_account/', views.deleteuser, name = 'delete_account'),
+
+    
     # TV Shows
     path('tv/', views.tv_list, name='tv_list'),
     path('tv/<slug:slug>/', views.media_detail, {'media_type': 'TV Show'}, name='tv_detail'),
@@ -27,4 +30,7 @@ urlpatterns = [
 
     path('profile/', views.profile_view, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/<str:username>/', views.profile_view, name='profile_by_username'),
+
+    path('search/', views.live_search, name='live_search'),
 ]

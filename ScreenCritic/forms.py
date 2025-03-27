@@ -69,3 +69,8 @@ class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['profile_picture', 'bio', 'favorite_genres']
+
+class UserDeleteForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = []  

@@ -15,7 +15,7 @@
     <!-- Navigation Bar -->
     <nav>
         <div class="nav-left">
-            <a href="{% url 'home' %}">
+            <a href="{% url 'ScreenCritic:home' %}">
                 <img src="{% static 'images/logo.png' %}" alt="ScreenCritic Logo" class="logo">
             </a>
             <ul class="nav-links">
@@ -26,26 +26,30 @@
         </div>
 
         <div class="nav-right">
-            <input type="text" class="search-bar" placeholder="Search">
+            <!-- Live Search Wrapper -->
+            <div class="search-wrapper">
+                <input type="text" id="live-search" class="search-bar" placeholder="Search">
+                <div id="search-results" class="search-results"></div>
+            </div>
+
             <!-- Notification Bell -->
             <div class="notification-container">
                 <img src="{% static 'images/bell.png' %}" alt="Notifications" class="notification-bell" onclick="toggleNotifications()">
-
-                <!-- Dropdown -->
                 <div id="notificationDropdown" class="notification-dropdown">
                     You have no new notifications.
                 </div>
             </div>
+
             {% if user.is_authenticated %}
                 <a href="{% url 'ScreenCritic:profile' %}" class="profile-link">
-                {% if user.userprofile.profile_picture %}
-                    <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile" class="profile-pic">
-                {% else %}
-                    <img src="{% static 'images/default_profile.png' %}" alt="Profile" class="profile-pic">
-                {% endif %} 
-                </a> 
+                    {% if user.userprofile.profile_picture %}
+                        <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile" class="profile-pic">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" alt="Profile" class="profile-pic">
+                    {% endif %}
+                </a>
             {% else %}
-                <a href={% url 'ScreenCritic:login_register' %} class="login-btn">Login / Signup</a>
+                <a href="{% url 'ScreenCritic:login_register' %}" class="login-btn">Login / Signup</a>
             {% endif %}
         </div>
     </nav>
@@ -53,10 +57,6 @@
     <!-- Main Content -->
     <main>
         {% block content %}
-        {% if user.is_authenticated %}
-        <a href="{% url 'ScreenCritic:logout' %}">Logout</a>
-        {% endif %}
-
         {% endblock %}
     </main>
 
@@ -65,6 +65,8 @@
         <p>ScreenCritic made 2025</p>
     </footer>
 
+    <!-- Scripts -->
     <script src="{% static 'js/notifications.js' %}?v=1"></script>
+    <script src="{% static 'js/search.js' %}"></script>
 </body>
 </html>
