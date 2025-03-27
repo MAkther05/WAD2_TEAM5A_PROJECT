@@ -28,21 +28,26 @@ from .models import (
 )
 
 
-def home(request):
-
+def home(request): #render the home page
+    #get top rated reviews ordered by rating and likes
     top_reviews = Review.objects.annotate(like_count=Count('reviewlike')).order_by('-rating', '-like_count')[:25]
 
+    #get upcoming media ordered by release date
     upcoming_media = Media.objects.filter(release_date__gt=now()).order_by('release_date')[:40]
 
+    #get trending movies based on average rating
     trending_movies = Media.objects.filter(type='Movie').annotate(
         avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
+    #get trending TV shows based on average rating
     trending_shows = Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').annotate(
         avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
+    #get trending games based on average rating
     trending_games = Media.objects.filter(type='Game').annotate(
         avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
+    #prepare context data for template
     context = {
         'trending_movies': trending_movies,
         'trending_shows': trending_shows,
@@ -52,7 +57,6 @@ def home(request):
     }
 
     return render(request, 'ScreenCritic/index.html', context)
-
 
 def movie_list(request): #display list of movies and related movie content
     movies = Media.objects.filter(type='Movie').order_by('-release_date') #get all movies ordered by release date

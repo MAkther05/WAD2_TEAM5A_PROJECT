@@ -16,7 +16,9 @@ class GenreAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    search_fields = ('username__username', 'media_id__title',)  #search reviews by username or media title
+    search_fields = ('user__username', 'media__title',)  # search reviews by username or media title
+    list_display = ('user', 'media', 'rating', 'date')
+    list_filter = ('rating', 'date')
 
 @admin.register(ReviewLike)
 class ReviewLikeAdmin(admin.ModelAdmin):
@@ -24,7 +26,8 @@ class ReviewLikeAdmin(admin.ModelAdmin):
 
 @admin.register(UserMediaSubscription)
 class UserMediaSubscriptionAdmin(admin.ModelAdmin):
-    search_fields = ('username__username', 'media_id__title',)  #search subscriptions by username or media title
+    search_fields = ('user__username', 'media__title',)  # search subscriptions by username or media title
+    list_display = ('user', 'media')
 
 @admin.register(UserFavouriteGenre)
 class UserFavouriteGenreAdmin(admin.ModelAdmin):
