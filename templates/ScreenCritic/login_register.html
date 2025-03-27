@@ -31,7 +31,6 @@
                 {% if login_form.password.errors %}
                     <div class="error">{{ login_form.password.errors }}</div>
                 {% endif %}
-                <p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
             </div>
             <button type="submit" class="form-button">Sign In</button>
         </form>
