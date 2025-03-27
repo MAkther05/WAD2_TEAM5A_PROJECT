@@ -57,9 +57,6 @@
     <!-- Main Content -->
     <main>
         {% block content %}
-        {% if user.is_authenticated %}
-        <a href="{% url 'ScreenCritic:logout' %}">Logout</a>
-        {% endif %}
         {% endblock %}
     </main>
 

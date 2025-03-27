@@ -219,7 +219,7 @@ def login_register(request):
             if user:
                 login(request, user)
                 messages.success(request, "Logged in successfully!")
-                return redirect('ScreenCritic:profile')
+                return redirect('ScreenCritic:home')
             else:
                 messages.error(request, "Invalid username or password")
                 return redirect('ScreenCritic:login_register')
