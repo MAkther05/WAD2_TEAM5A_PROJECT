@@ -167,7 +167,7 @@ def media_detail(request, slug, media_type): #display detailed view of a specifi
 
     rating_stats = reviews.aggregate(total_ratings=Count('rating'), average_rating=Avg('rating')) #calculate rating statistics
     total_ratings = rating_stats['total_ratings'] or 0
-    average_rating = rating_stats['average_rating'] or 0
+    average_rating = round(rating_stats['average_rating'] or 0,1)
     text_reviews_count = reviews.exclude(review__isnull=True).exclude(review__exact='').count()
 
     recommended_media = Media.objects.filter(type=media_type).exclude(slug=slug).annotate( #get recommended media
