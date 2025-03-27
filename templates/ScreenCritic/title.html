@@ -12,7 +12,7 @@
     <div class="media-main">
         <!-- LEFT SIDE: Image, Title, Rating Stats -->
         <div class="media-left">
-            <img src="{{ media.cover_image }}" alt="{{ media.title }}">
+            <img src="{{ media.cover_image|resolve_image }}" alt="{{ media.title }}">
             <div class="media-text">
                 <h1>{{ media.title }}</h1>
                 <p>by {{ media.creator|default:"Unknown" }}</p>
@@ -83,7 +83,7 @@
                             <div class="review-user">
                                 <a href="{% url 'ScreenCritic:profile_by_username' username=review.user.username %}" class="profile-link">
                                 {% if review.user.userprofile.profile_picture %}
-                                    <img src="{{ review.user.userprofile.profile_picture.url }}" alt="{{ review.user.username }}'s Profile Picture" class="profile-pic">
+                                    <img src="{{ review.user.userprofile.profile_picture|resolve_image }}" alt="{{ review.user.username }}'s Profile Picture" class="profile-pic">
                                 {% else %}
                                     <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Picture" class="profile-pic">
                                 {% endif %}
@@ -125,7 +125,7 @@
             {% for media_item in recommended_media %}
             <div class="recommended-item">
                 <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                    <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                    <img src="{{ media_item.cover_image|resolve_image }}" alt="{{ media_item.title }}">
                     <p>{{ media_item.title }}</p>
                 </a>
             </div>

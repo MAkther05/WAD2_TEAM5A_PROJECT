@@ -18,7 +18,7 @@
         {% for media_item in suggested_movies %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" 
+                <img src="{{ media_item.cover_image|resolve_image }}" 
                      alt="{{ media_item.title }}"
                      width="180"
                      height="270"
@@ -41,7 +41,7 @@
         {% for media_item in trending_movies %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" 
+                <img src="{{ media_item.cover_image|resolve_image }}" 
                      alt="{{ media_item.title }}"
                      width="180"
                      height="270"
@@ -62,7 +62,7 @@
         {% for media_item in movies_alphabetically %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" 
+                <img src="{{ media_item.cover_image|resolve_image }}" 
                      alt="{{ media_item.title }}"
                      width="180"
                      height="270"
@@ -84,7 +84,7 @@
         {% for media_item in movies %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" 
+                <img src="{{ media_item.cover_image|resolve_image }}" 
                      alt="{{ media_item.title }}"
                      width="180"
                      height="270"
