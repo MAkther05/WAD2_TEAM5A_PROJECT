@@ -118,6 +118,10 @@
                 <p>{{ media_item.description|truncatewords:20 }}</p>
                 <p><strong>Release Date:</strong> {{ media_item.release_date|date:"F d, Y" }}</p>
             </div>
+            <div class="notification-container">
+                <img src="{% static 'images/bell.png' %}" alt="Notify Me" class="notification-bell">
+                <p>Notify me about this release</p>
+            </div>
         </div>
         {% empty %}
         <p>No upcoming releases.</p>
