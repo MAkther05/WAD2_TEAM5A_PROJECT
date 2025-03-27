@@ -1,0 +1,199 @@
+.page-container {
+    display: flex;  
+    justify-content: space-between; 
+    align-items: flex-start;
+    max-width: 98%;
+    margin: auto;
+    padding: 20px;
+    
+}
+
+
+/* Left Section */
+
+.left-section{
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    flex-basis: 40%;
+    flex-shrink: 0;
+    margin-top: 40px;
+}
+
+.media-section {
+    margin-top: 40px;
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.media-scroll {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
+}
+
+.media-item {
+    text-align: center;
+    margin-right: 15px;
+    flex: 0 0 auto;
+    flex-direction: column;
+    display: block;
+    width: 180px;
+}
+
+.media-item img {
+    width: 180px; /* Adjust .media-item p when this is changed */
+    height: 270px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.media-item a {
+    text-decoration: none;
+    color: black;
+}
+
+.media-item p {
+    max-width: 180px; /* Keep text width equal to image */
+    overflow: hidden;
+    word-break: break-word;
+    text-align: center; 
+    margin-top: 5px; 
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    margin: auto;
+    overflow: hidden;
+}
+
+.carousel-track {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.5s ease-in-out;
+    gap: 5px; /* Space between images */
+}
+
+.carousel-review {
+    font-size: 32px;
+    font-style: italic;
+    color: black;
+}
+
+
+.carousel-item {
+    flex: 0 0 30%;
+    text-align: center;
+    display: block;
+    min-width: 200px; /* Keep a fixed size */
+    position: relative;
+    transform: scale(0.8);
+    opacity: 0.6;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.carousel-item img {
+    border: 2px solid black; 
+    width: 180px; 
+    height: 270px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.carousel-item:nth-child(n) {
+    opacity: 0.6; /* Dim side images */
+    transform: scale(0.8);
+}
+
+.carousel-item.active {
+    flex: 0 0 40%;
+    opacity: 1;
+    transform: scale(1);
+    text-align: center;
+    z-index: 10;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}
+
+.carousel-title {
+    margin-top: 5px;
+    font-size: 24px; 
+    font-weight: bold;
+    color: black; 
+    
+}
+
+
+/* Upcoming Shows */
+
+.right-section {
+    margin-top: 40px;
+    width: 28%;
+    border-style: solid;
+    border-width: 5px;
+    flex: 1;
+    min-width: 400px;
+    background-color: #ADD8E6;
+
+}
+
+.upcoming-media {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 20px; /* Space between items */
+    padding: 10px;
+}
+
+.upcoming-item {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.upcoming-item img {
+    width: 100px; 
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 15px; /* Space between image and text */
+}
+
+.upcoming-info {
+    flex: 1; /* Allow text section to expand */
+}
+
+.upcoming-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+}
+
+.upcoming-info p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}
