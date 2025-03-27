@@ -179,6 +179,14 @@ def media_detail(request, slug, media_type): #display detailed view of a specifi
     liked_reviews = set()
     if request.user.is_authenticated: #get user's liked reviews if authenticated
         liked_reviews = set(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True))
+    
+    # Check if user has reviewed this media
+    user_has_reviewed = False
+    if request.user.is_authenticated:
+        user_has_reviewed = Review.objects.filter(
+            user=request.user,
+            media=media  # Or whatever your FK relationship is named
+        ).exists()
 
     context = { #prepare context data for template
         'media': media,
@@ -188,7 +196,8 @@ def media_detail(request, slug, media_type): #display detailed view of a specifi
         'average_rating': average_rating,
         'text_reviews_count': text_reviews_count,
         'current_sort': sort_by,
-        'liked_reviews': liked_reviews
+        'liked_reviews': liked_reviews,
+        'user_has_reviewed': user_has_reviewed
     }
     return render(request, 'ScreenCritic/title.html', context)
 
