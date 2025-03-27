@@ -20,9 +20,14 @@
     margin-top: 40px;
 }
 
+.left-section h1 {
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
 .media-section {
     margin-top: 40px;
-    margin-left: 40px;
+    margin-left: 20px;
     margin-right: 40px;
 }
 
@@ -64,56 +69,108 @@
 
 .carousel-container {
     position: relative;
-    width: 100%;
-    margin: auto;
+    width: calc(100% - 80px);
+    margin: 20px 40px;
     overflow: hidden;
+    padding: 0;
 }
 
 .carousel-track {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: stretch;
     transition: transform 0.5s ease-in-out;
-    gap: 5px; /* Space between images */
+    gap: 20px;
 }
-
-.carousel-review {
-    font-size: 32px;
-    font-style: italic;
-    color: black;
-}
-
 
 .carousel-item {
-    flex: 0 0 30%;
-    text-align: center;
-    display: block;
-    min-width: 200px; /* Keep a fixed size */
-    position: relative;
-    transform: scale(0.8);
-    opacity: 0.6;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    min-width: 500px;
+    max-width: 500px;
+    transform: none;
+    opacity: 1;
 }
 
 .carousel-item img {
-    border: 2px solid black; 
-    width: 180px; 
-    height: 270px;
+    width: 120px;
+    height: 180px;
     object-fit: cover;
-    border-radius: 5px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    border: none;
 }
 
-.carousel-item:nth-child(n) {
-    opacity: 0.6; /* Dim side images */
-    transform: scale(0.8);
+.review-content {
+    flex: 1;
+    min-width: 0; /* Allows text to wrap properly */
 }
 
-.carousel-item.active {
-    flex: 0 0 40%;
-    opacity: 1;
-    transform: scale(1);
-    text-align: center;
-    z-index: 10;
+.review-content a {
+    text-decoration: none;
+    color: black;
+}
+
+.review-content h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.review-content h4:hover {
+    color: #3366ff;
+}
+
+.carousel-review {
+    font-size: 14px;
+    font-style: italic;
+    color: #555;
+    margin: 10px 0;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.carousel-title {
+    margin-top: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.review-user {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.username-plain {
+    font-weight: bold;
+}
+
+.review-date {
+    font-size: 14px;
+    color: #666;
 }
 
 .carousel-btn {
@@ -127,6 +184,7 @@
     font-size: 24px;
     padding: 10px;
     border-radius: 50%;
+    z-index: 10;
 }
 
 .prev {
@@ -137,12 +195,15 @@
     right: 10px;
 }
 
-.carousel-title {
-    margin-top: 5px;
-    font-size: 24px; 
-    font-weight: bold;
-    color: black; 
-    
+.profile-link {
+    text-decoration: none;
+    color: black;
+    display: flex;
+    align-items: center;
+}
+
+.profile-link:hover .username-plain {
+    color: #3366ff;
 }
 
 
