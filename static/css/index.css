@@ -1,7 +1,7 @@
 .page-container {
-    display: flex;  /* Enables flexbox layout */
-    justify-content: space-between; /* Adds spacing between sections */
-    align-items: flex-start; /* Aligns items to the top */
+    display: flex;  
+    justify-content: space-between; 
+    align-items: flex-start;
     max-width: 98%;
     margin: auto;
     padding: 20px;
@@ -75,8 +75,14 @@
     align-items: center;
     transition: transform 0.5s ease-in-out;
     gap: 5px; /* Space between images */
-    /* width: max-content; */
 }
+
+.carousel-review {
+    font-size: 32px;
+    font-style: italic;
+    color: black;
+}
+
 
 .carousel-item {
     flex: 0 0 30%;
@@ -90,12 +96,9 @@
 }
 
 .carousel-item img {
-    /* width: 100%;
-    height: 200px;
-    object-fit: cover; */
     border: 2px solid black; 
-    width: 360px; /* Adjust .media-item p when this is changed */
-    height: 540px;
+    width: 180px; 
+    height: 270px;
     object-fit: cover;
     border-radius: 5px;
 }
@@ -173,7 +176,7 @@
 }
 
 .upcoming-item img {
-    width: 100px; /* Adjust as needed */
+    width: 100px; 
     height: 150px;
     object-fit: cover;
     border-radius: 5px;

@@ -18,21 +18,23 @@
 <div class="left-section">
 
 
-<h1>Top Rated Media</h1>
+<h1>Top Reviews</h1>
 
 <!-- Custom Carousel -->
 
 <div class="carousel-container">
     <div class="carousel-track">
-        {% for media in top_rated_media %}
+        {% for review in top_reviews %}
         <div class="carousel-item">
-            <a href="{% url media.type|route_name slug=media.slug %}">
-                <img src="{{ media.cover_image }}" alt="{{ media.title }}">
-            </a>
-            <p class="carousel-title">{{ media.title }}</p>
-            <p class="carousel-title">⭐ {{ media.average_rating|floatformat:1 }}</p>
+            <p class="carousel-title">{{ review.user.username }}'s Review for {{ review.media.title }}</p>
+            <a href="{% url review.media.type|route_name slug=review.media.slug %}">
+                <img src="{{ review.media.cover_image }}" alt="{{ review.media.title }}" loading="lazy">
+                </a>
+                <p class="carousel-review">"{{ review.review|truncatewords:15 }}"</p>
+                <p class="carousel-title">⭐ {{ review.rating }}/5</p>
         </div>
         {% endfor %}
+
     </div>
     <button class="carousel-btn prev">&#10094;</button>
     <button class="carousel-btn next">&#10095;</button>
@@ -47,7 +49,11 @@
         {% for media_item in trending_movies %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}"
+                    width="180"
+                    height="270"
+                    loading="lazy"
+                    class="media-image">
                 <p class="media_title">{{ media_item.title }}</p>
             </a>
         </div>
@@ -62,7 +68,11 @@
         {% for media_item in trending_shows %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}"
+                width="180"
+                height="270"
+                loading="lazy"
+                class="media-image">
                 <p class="media_title">{{ media_item.title }}</p>
             </a>
         </div>
@@ -77,7 +87,11 @@
         {% for media_item in trending_games %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}"
+                width="180"
+                height="270"
+                loading="lazy"
+                class="media-image">
                 <p class="media_title">{{ media_item.title }}</p>
             </a>
         </div>
@@ -94,7 +108,9 @@
     <div class="upcoming-media">
         {% for media_item in upcoming_media %}
         <div class="upcoming-item">
-            <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+            <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}"
+                loading="lazy"
+                class="media-image">
             <div class="upcoming-info">
                 <a href="{% url media_item.type|route_name slug=media_item.slug %}">
                     <h3>{{ media_item.title }}</h3>

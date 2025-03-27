@@ -1,20 +1,15 @@
-<<<<<<< HEAD
-=======
 from django.contrib.auth import authenticate, login, logout
->>>>>>> main
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils.timezone import now
-<<<<<<< HEAD
-
-=======
 from django.db.models import Avg, Count
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.views.decorators.http import require_GET
+from .templatetags.custom_filters import route_name
 
 from .forms import (
     LoginForm,
@@ -31,12 +26,12 @@ from .models import (
     UserFavouriteGenre,
     UserProfile
 )
->>>>>>> main
-from .templatetags.custom_filters import route_name
+
 
 def home(request):
 
-    top_rated_media = Media.objects.annotate(avg_rating=Avg('review__rating')).order_by('-avg_rating')[:5]
+    top_reviews = Review.objects.annotate(like_count=Count('reviewlike')).order_by('-rating', '-like_count')[:10]
+
 
     upcoming_media = Media.objects.filter(release_date__gt=now()).annotate(
         avg_rating=Avg('review__rating')).order_by('-avg_rating')[:10]
@@ -55,17 +50,12 @@ def home(request):
         'trending_shows': trending_shows,
         'trending_games': trending_games,
         'upcoming_media': upcoming_media,
-        'top_rated_media': top_rated_media
+        'top_reviews': top_reviews,
 
     }
 
     return render(request, 'ScreenCritic/index.html', context)
 
-<<<<<<< HEAD
-=======
-def home(request): #render the home page
-    return render(request, 'ScreenCritic/base.html')
->>>>>>> main
 
 def movie_list(request): #display list of movies and related movie content
     movies = Media.objects.filter(type='Movie').order_by('-release_date') #get all movies ordered by release date
