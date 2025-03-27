@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 if (response.status === 401) { //redirect to login page if not authenticated
-                    window.location.href = `/ScreenCritic/sign-in/?next=${window.location.pathname}`;
+                    window.location.href = `/ScreenCritic/login_register/?next=${window.location.pathname}`;
                     return;
                 }
                 return response.json();
