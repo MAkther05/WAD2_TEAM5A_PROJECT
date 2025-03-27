@@ -34,7 +34,7 @@
                         {% if not user_has_reviewed %}
                             <a class="review-btn" href="{% url review_url slug=media.slug %}">Write a Review</a>
                         {% else %}
-                            <button class="review-btn" disabled>Already Reviewed</button>
+                        <a class="review-btn already-reviewed" href="#" onclick="return false;">Already Reviewed</a>
                         {% endif %}
                     {% else %}
                         <a class="review-btn" href="{% url 'ScreenCritic:login_register' %}?next={% url review_url slug=media.slug %}">Login to Review</a>
