@@ -6,6 +6,26 @@
     font-family: Arial, sans-serif;
 }
 
+/* Ensure full viewport height */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Main content area */
+main {
+    flex: 1 0 auto;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 /* Navbar Styling */
 nav {
     background: #ADD8E6;
@@ -30,6 +50,14 @@ nav {
     list-style: none;
     display: flex;
     gap: 25px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
 }
 
 .nav-links li {
@@ -75,9 +103,8 @@ nav {
     color: black;
     text-align: center;
     padding: 15px;
-    position: relative;
-    bottom: 0;
     width: 100%;
+    flex-shrink: 0;
 }
 
 .notification-container {

@@ -1,23 +1,23 @@
-
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
-from ScreenCritic.forms import  LoginForm, ProfileEditForm, RegisterForm, ReviewForm
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Count, Avg
-from django.contrib.auth.decorators import login_required
-from .models import UserProfile, Review, Media, Genre, UserFavouriteGenre, ReviewLike
-from .forms import ProfileEditForm
-from django.views.decorators.http import require_GET
+
+from ScreenCritic.forms import LoginForm, ProfileEditForm, RegisterForm, ReviewForm
 from ScreenCritic.templatetags.custom_filters import route_name
 from django.templatetags.static import static
+from .models import UserProfile, Review, Media, Genre, UserFavouriteGenre, ReviewLike
+from django.views.decorators.http import require_GET
 
 
-# Create your views here.
 def home(request):
     return render(request, 'ScreenCritic/base.html')
+
 
 def movie_list(request):
     movies = Media.objects.filter(type='Movie').order_by('-release_date')
@@ -48,6 +48,7 @@ def movie_list(request):
         'suggested_movies': suggested_movies,
     }
     return render(request, 'ScreenCritic/media.html', context)
+
 
 def tv_list(request):
     shows = Media.objects.filter(type='TV Show', slug__isnull=False, slug__gt='').order_by('-release_date')
@@ -81,6 +82,7 @@ def tv_list(request):
     }
     return render(request, 'ScreenCritic/media.html', context)
 
+
 def game_list(request):
     games = Media.objects.filter(type='Game').order_by('-release_date')
     suggested_games = []
@@ -110,6 +112,7 @@ def game_list(request):
         'suggested_movies': suggested_games,
     }
     return render(request, 'ScreenCritic/media.html', context)
+
 
 def media_detail(request, slug, media_type):
     media = get_object_or_404(Media, slug=slug, type=media_type)
@@ -151,6 +154,7 @@ def media_detail(request, slug, media_type):
     }
     return render(request, 'ScreenCritic/title.html', context)
 
+
 def like_review(request, review_id):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
@@ -167,13 +171,12 @@ def like_review(request, review_id):
     else:
         liked_status = True
 
-    like_count = ReviewLike.objects.filter(review=review).count() #get the number of likes for the review
-    return JsonResponse({'likes': like_count, 'liked': liked_status}) #return the number of likes and the liked status
+    like_count = ReviewLike.objects.filter(review=review).count()
+    return JsonResponse({'likes': like_count, 'liked': liked_status})
 
 
 def media_review(request, slug, media_type=None):
     if not media_type:
-        # Fallback for when media_type isn't in URL
         media = get_object_or_404(Media, slug=slug)
         media_type = media.type
     else:
@@ -194,18 +197,17 @@ def media_review(request, slug, media_type=None):
             review.user = request.user
             review.media = media
             review.save()
-            messages.success(request, "Your review has been submitted!")
             return redirect(route_name(media_type), slug=slug)
     else:
         form = ReviewForm()
 
     return render(request, 'ScreenCritic/write_review.html', {'form': form, 'media': media})
 
+
 def login_register(request):
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
 
-        # Handle login
         if form_type == 'login':
             username = request.POST.get('username')
             password = request.POST.get('password')
@@ -213,12 +215,11 @@ def login_register(request):
             if user:
                 login(request, user)
                 messages.success(request, "Logged in successfully!")
-                return redirect('ScreenCritic:home')
+                return redirect('ScreenCritic:profile')
             else:
                 messages.error(request, "Invalid username or password")
                 return redirect('ScreenCritic:login_register')
 
-        # Handle registration
         elif form_type == 'register':
             username = request.POST.get('username')
             email = request.POST.get('email')
@@ -242,12 +243,11 @@ def login_register(request):
                 UserProfile.objects.create(user=user, email=email)
                 login(request, user)
                 messages.success(request, "Account created successfully!")
-                return redirect('ScreenCritic:home')
+                return redirect('ScreenCritic:profile')
             except Exception as e:
                 messages.error(request, f"Error creating account: {str(e)}")
                 return redirect('ScreenCritic:login_register')
 
-    # For GET requests, still provide the forms for template rendering
     login_form = LoginForm()
     register_form = RegisterForm()
 
@@ -257,11 +257,11 @@ def login_register(request):
     }
     return render(request, 'ScreenCritic/login_register.html', context)
 
+
 def user_logout(request):
-    # Since we know the user is logged in, we can now just log them out.
     logout(request)
-    # Take the user back to the homepage.
     return redirect(reverse('ScreenCritic:home'))
+
 
 @login_required
 def profile_view(request, username=None):
@@ -284,11 +284,14 @@ def profile_view(request, username=None):
     else:
         order_by_field = "-rating"
 
+    liked_review_ids = list(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True))
+
     context = {
         "user_profile": user_profile,
         "favorite_genres": favorite_genres,
         "active_tab": active_tab,
         "current_sort": sort_option,
+        "liked_reviews_ids": liked_review_ids,
     }
 
     if active_tab == "to-review":
@@ -297,9 +300,7 @@ def profile_view(request, username=None):
         context["to_review_media"] = to_review_media
     elif active_tab == "liked":
         liked_reviews = Review.objects.filter(reviewlike__user=user).order_by(order_by_field)
-        liked_review_ids = ReviewLike.objects.filter(user=user).values_list('review_id', flat=True)
         context["liked_reviews"] = liked_reviews
-        context["liked_review_ids"] = list(liked_review_ids)
     else:
         reviewed_reviews = Review.objects.filter(user=user).order_by(order_by_field)
         context["reviewed_reviews"] = reviewed_reviews
@@ -343,6 +344,7 @@ def edit_profile(request):
         "user_favorite_genres": user_favorite_genres,
     })
 
+
 @require_GET
 def live_search(request):
     query = request.GET.get('q', '')
@@ -351,17 +353,13 @@ def live_search(request):
     media_matches = Media.objects.filter(title__icontains=query)[:5]
 
     def resolve_image(value, fallback):
-        #if the picture is missing default image is used
         if not value:
             return fallback
-        #convert to string
         value = str(value)
         if value.startswith('http'):
             return value
-        #return the url of the django file object
         if hasattr(value, 'url'):
             return value.url
-        #if not both return fallback
         return fallback
 
     results = {

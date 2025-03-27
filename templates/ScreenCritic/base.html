@@ -41,9 +41,15 @@
             </div>
 
             {% if user.is_authenticated %}
-                <img src="{% static 'images/default_profile.png' %}" alt="Profile" class="profile-pic">
+                <a href="{% url 'ScreenCritic:profile' %}" class="profile-link">
+                    {% if user.userprofile.profile_picture %}
+                        <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile" class="profile-pic">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" alt="Profile" class="profile-pic">
+                    {% endif %}
+                </a>
             {% else %}
-                <a href={% url 'ScreenCritic:login_register' %} class="login-btn">Login / Signup</a>
+                <a href="{% url 'ScreenCritic:login_register' %}" class="login-btn">Login / Signup</a>
             {% endif %}
         </div>
     </nav>
