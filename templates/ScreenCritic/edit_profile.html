@@ -68,92 +68,12 @@
         </form>
     </div>
 
-    <!-- RIGHT: Preview (Optional) -->
+    <!-- RIGHT: Preview -->
     <div class="edit-right">
         <h2>Edit your ScreenCritic profile</h2>
         <p>You can update your bio, profile picture and favorite genres here. These will appear on your public profile page.</p>
     </div>
 </div>
-
-<!-- JavaScript -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const bioTextarea = document.getElementById("bio");
-    const wordCountDisplay = document.getElementById("word-count");
-    const genreSelect = document.getElementById("genre-select");
-    const selectedGenresContainer = document.getElementById("selected-genres");
-    const selectedGenreInputs = document.getElementById("selected-genre-inputs");
-    const removedGenres = new Set();
-
-    const removedGenresInput = document.createElement("input");
-    removedGenresInput.type = "hidden";
-    removedGenresInput.name = "removed_genres";
-    removedGenresInput.value = "";
-    selectedGenreInputs.appendChild(removedGenresInput);
-
-    function updateWordCount() {
-        const words = bioTextarea.value.trim().split(/\s+/).filter(Boolean);
-        wordCountDisplay.textContent = `${words.length} / 65 words`;
-    }
-
-    bioTextarea.addEventListener("input", updateWordCount);
-    updateWordCount();
-
-    function addGenre(genreId, genreName, preloaded = false) {
-        if (document.querySelector(`button[data-id='${genreId}']`)) return;
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.classList.add("genre-button");
-        button.setAttribute("data-id", genreId);
-        button.innerHTML = `${genreName} ✕`;
-
-        const hiddenInput = document.createElement("input");
-        hiddenInput.type = "hidden";
-        hiddenInput.name = "favorite_genres";
-        hiddenInput.value = genreId;
-        hiddenInput.setAttribute("data-id", `input-${genreId}`);
-
-        button.addEventListener("click", function () {
-            button.remove();
-            hiddenInput.remove();
-            removedGenres.add(genreId);
-            removedGenresInput.value = Array.from(removedGenres).join(",");
-        });
-
-        selectedGenresContainer.appendChild(button);
-        selectedGenreInputs.appendChild(hiddenInput);
-
-        if (!preloaded) {
-            genreSelect.selectedIndex = 0;
-        }
-    }
-
-    genreSelect.addEventListener("change", function () {
-        const genreId = this.value;
-        const genreName = this.options[this.selectedIndex].text;
-        if (genreId) addGenre(genreId, genreName);
-    });
-
-// Preloaded genres from template
-    document.querySelectorAll("#selected-genres .genre-button").forEach(button => {
-        const genreId = button.getAttribute("data-id");
-        const genreName = button.textContent.replace("✕", "").trim();
-
-        const hiddenInput = document.createElement("input");
-        hiddenInput.type = "hidden";
-        hiddenInput.name = "favorite_genres";
-        hiddenInput.value = genreId;
-        hiddenInput.setAttribute("data-id", `input-${genreId}`);
-        selectedGenreInputs.appendChild(hiddenInput);
-
-        button.addEventListener("click", function () {
-            button.remove();
-            hiddenInput.remove();
-            removedGenres.add(genreId);
-            removedGenresInput.value = Array.from(removedGenres).join(",");
-        });
-    });
-});
-</script>
+    <!-- Scripts -->
+    <script src="{% static 'js/edit_genres.js' %}"></script>
 {% endblock %}
