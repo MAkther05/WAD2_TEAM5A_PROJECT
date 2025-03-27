@@ -128,9 +128,20 @@ def fetch_movies(url, type_label):
 
 def fetch_games(url, type_label):
     games = fetch_paginated_data(url, type_label) #get a list of game dicts
+    excluded_esrb_ratings = ['Adults Only', 'Mature']
+    excluded_tags = ['nsfw', 'nudity', 'sexual content', 'erotic', 'adult', 'pegi 18', '18+']
 
     for game in games:
         if game.get('name') and game.get('released') and game.get('background_image'):
+            esrb = game.get('esrb_rating')
+            if esrb and esrb.get('name') in excluded_esrb_ratings:
+                continue  #skip ESRB 18+ game
+
+            #check for NSFW or PEGI-related tags
+            tags = [tag['name'].lower() for tag in game.get('tags', [])]
+            if any(bad_tag in tags for bad_tag in excluded_tags):
+                continue  #skip NSFW or PEGI-18 style game
+
             try:
                 if Media.objects.filter(title=game['name'], type='Game').exists(): #check if media already exists
                     continue
