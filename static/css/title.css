@@ -60,6 +60,12 @@
     font-size: clamp(14px, 1vw, 16px);
 }
 
+.review-btn.already-reviewed {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
 /* RIGHT SIDE */
 .media-right {
     flex: 1;
