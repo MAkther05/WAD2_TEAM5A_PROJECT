@@ -33,4 +33,7 @@ urlpatterns = [
     path('profile/<str:username>/', views.profile_view, name='profile_by_username'),
 
     path('search/', views.live_search, name='live_search'),
+
+    path('notifications/', views.get_notifications, name='get_notifications'),
+    path('notifications/<int:subscription_id>/read/', views.mark_notification_read, name='mark_notification_read'),
 ]
