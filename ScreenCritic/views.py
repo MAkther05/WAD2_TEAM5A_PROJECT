@@ -8,6 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.templatetags.static import static
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_GET
 from .templatetags.custom_filters import route_name
 
@@ -24,7 +25,8 @@ from .models import (
     Review,
     ReviewLike,
     UserFavouriteGenre,
-    UserProfile
+    UserProfile,
+    UserMediaSubscription
 )
 
 
@@ -432,3 +434,36 @@ def live_search(request): #handle live search functionality
     }
 
     return JsonResponse(results)
+
+def get_notifications(request): #handle fetching notifications for the current user
+    if request.user.is_authenticated:
+        #get all released media notifications for the last 30 days
+        subscriptions = UserMediaSubscription.objects.filter(
+            user=request.user,
+            is_released=True,
+            notification_date__gte=now() - timezone.timedelta(days=30)  #only show recent notifications
+        ).order_by('-notification_date')  #most recent first
+        
+        #format notifications for frontend display
+        notifications = [{
+            'media_title': sub.media.title,
+            'media_type': sub.media.type,
+            'media_slug': sub.media.slug,
+            'cover_image': sub.media.cover_image if not sub.media.cover_image.url else f'/media/{sub.media.cover_image}' if sub.media.cover_image else '/static/images/logo.png',
+            'notification_date': sub.notification_date.strftime("%Y-%m-%d %H:%M:%S") if sub.notification_date else None,
+            'subscription_id': sub.id,
+            'read_by_user': sub.read_by_user  #include read status
+        } for sub in subscriptions]
+        
+        return JsonResponse({'notifications': notifications})
+    return JsonResponse({'notifications': []})
+
+@login_required
+def mark_notification_read(request, subscription_id): #handle marking a notification as read
+    if request.method == 'POST':
+        #get the subscription and verify it belongs to the current user
+        subscription = get_object_or_404(UserMediaSubscription, id=subscription_id, user=request.user)
+        subscription.read_by_user = True  #mark as read
+        subscription.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)

@@ -78,6 +78,9 @@ class ReviewLike(models.Model):
 class UserMediaSubscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    is_released = models.BooleanField(default=False)  #set to True when media is released
+    read_by_user = models.BooleanField(default=False)  #set to True when user clicks/views the notification
+    notification_date = models.DateTimeField(null=True, blank=True)  #when the notification was created
 
     class Meta:
         unique_together = (('user', 'media'),)
