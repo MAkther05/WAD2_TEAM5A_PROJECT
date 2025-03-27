@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="44cc1a5e-f4bd-43f4-9618-641ee122377c" name="Changes" comment="edit profile css">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ScreenCritic/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScreenCritic/tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ScreenCritic/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/ScreenCritic/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WAD2_TEAM5A_PROJECT/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/WAD2_TEAM5A_PROJECT/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/media_general.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/media_general.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/styles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/title.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/title.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/like.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/like.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/ScreenCritic/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/ScreenCritic/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/ScreenCritic/media.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/ScreenCritic/media.html" afterDir="false" />
-    </list>
+    <list default="true" id="44cc1a5e-f4bd-43f4-9618-641ee122377c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,7 +46,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "git-widget-placeholder": "Merging search-feature",
+    "git-widget-placeholder": "profile",
     "last_opened_file_path": "/Users/danaalali/WAD2_TEAM5A_PROJECT",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -134,7 +121,7 @@
     <MESSAGE value=" Updated base.html, styles.css, added bell icon, and adjusted layout" />
     <MESSAGE value="worked on profile and edit profile but i need to fix the css" />
     <MESSAGE value="edit profile css" />
-    <option name="LAST_COMMIT_MESSAGE" value="edit profile css" />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
