@@ -1,0 +1,61 @@
+{% extends 'ScreenCritic/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/delete_account.css' %}">
+
+<div class="delete-account-container">
+    <div class="delete-account-box">
+        <h2>Delete Your Account</h2>
+        
+        <div class="warning-message">
+            <p><strong>Warning:</strong> This action is permanent and cannot be undone.</p>
+            <p>All of your data including reviews, ratings, and profile information will be permanently deleted.</p>
+        </div>
+
+        <form method="post" action="{% url 'ScreenCritic:delete_account' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_password">Enter your password to confirm:</label>
+                <input type="password" name="password" id="id_password" class="form-control" required>
+                {% if form.password.errors %}
+                    <div class="error">{{ form.password.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="confirmation-checkbox">
+                <input type="checkbox" name="confirm_delete" id="id_confirm_delete" required>
+                <label for="id_confirm_delete">I understand that this action cannot be undone</label>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="delete-button" id="deleteButton" disabled>Delete My Account</button>
+                <a href="{% url 'ScreenCritic:profile' %}" class="cancel-button">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('id_confirm_delete');
+    const deleteButton = document.getElementById('deleteButton');
+    
+    checkbox.addEventListener('change', function() {
+        deleteButton.disabled = !this.checked;
+    });
+});
+</script>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

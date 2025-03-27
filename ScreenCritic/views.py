@@ -12,6 +12,10 @@ from ScreenCritic.forms import LoginForm, ProfileEditForm, RegisterForm, ReviewF
 from ScreenCritic.templatetags.custom_filters import route_name
 from django.templatetags.static import static
 from .models import UserProfile, Review, Media, Genre, UserFavouriteGenre, ReviewLike
+from .forms import ProfileEditForm, UserDeleteForm
+from .forms import LoginForm, ProfileEditForm, RegisterForm, ReviewForm
+
+from .templatetags.custom_filters import route_name
 from django.views.decorators.http import require_GET
 
 
@@ -215,7 +219,7 @@ def login_register(request):
             if user:
                 login(request, user)
                 messages.success(request, "Logged in successfully!")
-                return redirect('ScreenCritic:profile')
+                return redirect('ScreenCritic:home')
             else:
                 messages.error(request, "Invalid username or password")
                 return redirect('ScreenCritic:login_register')
@@ -344,6 +348,23 @@ def edit_profile(request):
         "user_favorite_genres": user_favorite_genres,
     })
 
+
+@login_required
+def deleteuser(request):
+    if request.method == 'POST':
+        delete_form = UserDeleteForm(request.POST, instance=request.user)
+        user = request.user
+        user.delete()
+        messages.info(request, 'Your account has been deleted.')
+        return redirect('ScreenCritic:home')
+    else:
+        delete_form = UserDeleteForm(instance=request.user)
+
+    context = {
+        'delete_form': delete_form
+    }
+
+    return render(request, 'ScreenCritic/delete_account.html', context)
 
 @require_GET
 def live_search(request):
