@@ -8,6 +8,7 @@
 
 {% block content %}
 <div class="profile-container">
+    <!-- Sidebar with user info -->
     <div class="profile-sidebar">
         {% if user_profile.profile_picture %}
             <img class="profile-img" src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
@@ -16,6 +17,7 @@
         {% endif %}
         <h2>{{ user_profile.user.username }}</h2>
 
+        <!-- Review count changes based on selected tab -->
         <p class="review-count">
             {% if active_tab == 'reviewed' %}
                 {{ reviewed_reviews.count|default:0 }} Reviewed
@@ -25,12 +27,13 @@
                 {{ to_review_media.count|default:0 }} To-Review
             {% endif %}
         </p>
-
+        <!-- Bio -->
         <div class="bio-box">
             <h3>Bio</h3>
             <p>{{ user_profile.bio|default:"No bio yet." }}</p>
         </div>
 
+        <!-- Favorite genres -->
         <div class="genre-box">
             <h3>Genres</h3>
             <ul>
@@ -41,20 +44,21 @@
                 {% endfor %}
             </ul>
         </div>
+        <!-- Edit buttons only on the users page -->
         {% if user == user_profile.user %}
             <a class="edit-btn" href="{% url 'ScreenCritic:edit_profile' %}">⚙️Edit Profile</a>
             <a class="edit-btn" href="{% url 'ScreenCritic:logout' %}">😢Logout</a>
             <a class="edit-btn" href="{% url 'ScreenCritic:delete_account' %}">❌Delete Account</a>
         {% endif %}
     </div>
-
+    <!-- Main content: tabs and reviews -->
     <div class="profile-main">
         <div class="tab-nav">
             <a href="?tab=reviewed"{% if active_tab == 'reviewed' %} class="active"{% endif %}>Reviewed</a>
             <a href="?tab=liked"{% if active_tab == 'liked' %} class="active"{% endif %}>Liked</a>
             <a href="?tab=to-review"{% if active_tab == 'to-review' %} class="active"{% endif %}>To-Review</a>
         </div>
-
+        <!-- Sort options for reviewed and liked -->
         {% if active_tab != 'to-review' %}
         <form method="get" class="sort-form">
             <input type="hidden" name="tab" value="{{ active_tab }}">
@@ -68,10 +72,13 @@
         </form>
         {% endif %}
 
+        <!-- Scrollable review section -->
         <div class="review-scroll">
+            <!-- reviewed tab-->
             {% if active_tab == 'reviewed' %}
                 {% for review in reviewed_reviews %}
                 <div class="review-card">
+                    <!-- Media image with lazy loading -->
                     {% if review.media.slug %}
                         <a href="{% if review.media.type == 'TV Show' %}
                                     {% url 'ScreenCritic:tv_detail' slug=review.media.slug %}
@@ -80,11 +87,12 @@
                                  {% elif review.media.type == 'Game' %}
                                     {% url 'ScreenCritic:game_detail' slug=review.media.slug %}
                                  {% endif %}">
-                            <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}">
+                            <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
                         </a>
                     {% else %}
-                        <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}">
+                        <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
                     {% endif %}
+                    <!-- Review detail-->
                     <div class="review-content">
                         <h4>{{ review.media.title }}</h4>
                         <div class="review-header">
@@ -117,10 +125,11 @@
                 {% empty %}
                 <p>No reviews yet.</p>
                 {% endfor %}
-
+                <!-- liked reviews tab-->
             {% elif active_tab == 'liked' %}
                 {% for review in liked_reviews %}
                 <div class="review-card">
+                    <!-- liked media with lazy loading -->
                     {% if review.media.slug %}
                         <a href="{% if review.media.type == 'TV Show' %}
                                     {% url 'ScreenCritic:tv_detail' slug=review.media.slug %}
@@ -129,11 +138,12 @@
                                  {% elif review.media.type == 'Game' %}
                                     {% url 'ScreenCritic:game_detail' slug=review.media.slug %}
                                  {% endif %}">
-                            <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}">
+                            <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
                         </a>
                     {% else %}
-                        <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}">
+                        <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
                     {% endif %}
+                    <!-- Review content -->
                     <div class="review-content">
                         <h4>{{ review.media.title }}</h4>
                         <div class="review-header">
@@ -166,7 +176,7 @@
                 {% empty %}
                 <p>No liked reviews yet.</p>
                 {% endfor %}
-
+                <!-- to-review reviews tab-->
             {% elif active_tab == 'to-review' %}
                 {% for media in to_review_media %}
                 <div class="review-card">
@@ -178,10 +188,10 @@
                                  {% elif media.type == 'Game' %}
                                     {% url 'ScreenCritic:game_detail' slug=media.slug %}
                                  {% endif %}">
-                            <img src="{{ media.cover_image }}" class="media-img" alt="{{ media.title }}">
+                            <img src="{{ media.cover_image }}" class="media-img" alt="{{ media.title }}" loading="lazy">
                         </a>
                     {% else %}
-                        <img src="{{ media.cover_image }}" class="media-img" alt="{{ media.title }}">
+                        <img src="{{ media.cover_image }}" class="media-img" alt="{{ media.title }}" loading="lazy">
                     {% endif %}
                     <div class="review-content">
                         <h4>{{ media.title }}</h4>
@@ -195,6 +205,6 @@
         </div>
     </div>
 </div>
-
+    <!-- Like button functionality -->
 <script src="{% static 'js/like.js' %}?v=3"></script>
 {% endblock %}

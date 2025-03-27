@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
 from ScreenCritic.models import Media, Review, ReviewLike, Genre, UserProfile, UserMediaSubscription, UserFavouriteGenre
 from ScreenCritic.forms import ProfileEditForm, LoginForm, RegisterForm, ReviewForm
 
@@ -88,35 +88,113 @@ class ViewsTest(TestCase):
         #create test client
         self.client = Client()
         
-        #create test user
+        #create test users
         self.user = User.objects.create_user(username="testuser", password="testpass")
+        self.user2 = User.objects.create_user(username="testuser2", password="testpass2")
         UserProfile.objects.create(user=self.user, email="test@example.com")
         
         #create test genres
         self.genre = Genre.objects.create(name="Action")
+        self.drama = Genre.objects.create(name="Drama")
+        
+        now = timezone.now()
+        
+        #create test upcoming media
+        self.upcoming_movie = Media.objects.create(
+            title="Future Movie",
+            type="Movie",
+            release_date=now + timedelta(days=30)
+        )
+        self.upcoming_game = Media.objects.create(
+            title="Future Game",
+            type="Game",
+            release_date=now + timedelta(days=15)
+        )
         
         #create test media
         self.media = Media.objects.create(
             title="Test Movie",
             type="Movie",
             description="Test Description",
-            release_date=timezone.now(),
+            release_date=now - timedelta(days=10),
             creator="Test Director"
         )
-        self.media.genres.add(self.genre)
+        self.show = Media.objects.create(
+            title="Test Show",
+            type="TV Show",
+            release_date=now - timedelta(days=20)
+        )
+        self.game = Media.objects.create(
+            title="Test Game",
+            type="Game",
+            release_date=now - timedelta(days=30)
+        )
         
-        #create test review
+        #add genres to media
+        self.media.genres.add(self.genre)
+        self.show.genres.add(self.drama)
+        self.game.genres.add(self.genre)
+        
+        #create test reviews with different ratings
         self.review = Review.objects.create(
             user=self.user,
             media=self.media,
             rating=5,
             review="Great movie!"
         )
+        self.review2 = Review.objects.create(
+            user=self.user2,
+            media=self.show,
+            rating=4,
+            review="Good show!"
+        )
+        
+        #add likes to reviews
+        ReviewLike.objects.create(user=self.user2, review=self.review)
 
     def test_home_view(self): #check if home view works correctly
         response = self.client.get(reverse('ScreenCritic:home'))
         self.assertEqual(response.status_code, 200) #check if response status is correct
-        self.assertTemplateUsed(response, 'ScreenCritic/base.html') #check if correct template is used
+        self.assertTemplateUsed(response, 'ScreenCritic/index.html') #check if correct template is used
+        
+        #check if all required context variables are present
+        context = response.context
+        self.assertIn('trending_movies', context)
+        self.assertIn('trending_shows', context)
+        self.assertIn('trending_games', context)
+        self.assertIn('upcoming_media', context)
+        self.assertIn('top_reviews', context)
+        
+        #test upcoming media ordering and filtering
+        upcoming = list(context['upcoming_media'])
+        self.assertEqual(len(upcoming), 2) #check if only future releases are included
+        self.assertEqual(upcoming[0], self.upcoming_game) #check if ordered by earliest release
+        self.assertEqual(upcoming[1], self.upcoming_movie)
+        
+        #test trending media by type
+        self.assertIn(self.media, context['trending_movies'])
+        self.assertIn(self.show, context['trending_shows'])
+        self.assertIn(self.game, context['trending_games'])
+        
+        #test top reviews ordering
+        top_reviews = list(context['top_reviews'])
+        self.assertTrue(len(top_reviews) > 0)
+        self.assertEqual(top_reviews[0], self.review) #check if highest rated review is first
+
+    def test_home_view_empty_state(self): #check if home view handles empty state correctly
+        #delete all media and reviews
+        Media.objects.all().delete()
+        Review.objects.all().delete()
+        
+        response = self.client.get(reverse('ScreenCritic:home'))
+        self.assertEqual(response.status_code, 200)
+        
+        #check if context variables are empty
+        self.assertEqual(len(response.context['upcoming_media']), 0)
+        self.assertEqual(len(response.context['trending_movies']), 0)
+        self.assertEqual(len(response.context['trending_shows']), 0)
+        self.assertEqual(len(response.context['trending_games']), 0)
+        self.assertEqual(len(response.context['top_reviews']), 0)
 
     def test_movie_list_view(self): #check if movie list view works correctly
         response = self.client.get(reverse('ScreenCritic:movie_list'))
@@ -312,7 +390,7 @@ class ViewsTest(TestCase):
         self.assertEqual(response.status_code, 200) #check if response status is correct
         data = response.json()
         self.assertIn('media', data) #check if media is in response
-        self.assertEqual(len(data['media']), 1) #check if correct number of media items is returned
+        self.assertEqual(len(data['media']), 3) #check if correct number of media items is returned
         self.assertEqual(data['media'][0]['title'], 'Test Movie') #check if correct media is returned
         self.assertEqual(data['media'][0]['type'], 'Movie') #check if media type is correct
 

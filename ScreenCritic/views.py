@@ -30,11 +30,9 @@ from .models import (
 
 def home(request):
 
-    top_reviews = Review.objects.annotate(like_count=Count('reviewlike')).order_by('-rating', '-like_count')[:10]
+    top_reviews = Review.objects.annotate(like_count=Count('reviewlike')).order_by('-rating', '-like_count')[:25]
 
-
-    upcoming_media = Media.objects.filter(release_date__gt=now()).annotate(
-        avg_rating=Avg('review__rating')).order_by('-avg_rating')[:10]
+    upcoming_media = Media.objects.filter(release_date__gt=now()).order_by('release_date')[:40]
 
     trending_movies = Media.objects.filter(type='Movie').annotate(
         avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
@@ -51,7 +49,6 @@ def home(request):
         'trending_games': trending_games,
         'upcoming_media': upcoming_media,
         'top_reviews': top_reviews,
-
     }
 
     return render(request, 'ScreenCritic/index.html', context)
