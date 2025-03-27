@@ -42,7 +42,9 @@
             </ul>
         </div>
 
-        <a class="edit-btn" href="{% url 'ScreenCritic:edit_profile' %}">⚙️Edit Profile</a>
+        {% if user == user_profile.user %}
+            <a class="edit-btn" href="{% url 'ScreenCritic:edit_profile' %}">⚙️Edit Profile</a>
+        {% endif %}
     </div>
 
     <div class="profile-main">
