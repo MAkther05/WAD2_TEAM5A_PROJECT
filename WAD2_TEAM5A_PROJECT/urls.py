@@ -22,9 +22,11 @@ from ScreenCritic import views
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path("ScreenCritic/", include("django.contrib.auth.urls")),
     path('', views.home, name='home'),
-    path('password_change/',auth_views.PasswordChangeView.as_view(template_name='ScreenCritic/change_password.html',success_url='/ScreenCritic/profile'),name='password_change'),
+    path('password_change/', auth_views.PasswordChangeView.as_view(
+        template_name='ScreenCritic/change_password.html',
+        success_url='/ScreenCritic/profile'
+    ), name='password_change'),
     path('admin/', admin.site.urls),
     path('ScreenCritic/', include('ScreenCritic.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
