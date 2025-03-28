@@ -25,4 +25,4 @@ This project uses the following external APIs and resources:
 - For icons (like hearts for the like button)
 
 [Bootstrap](https://getbootstrap.com/)
-– Carousel and responsive layout components.
+- Carousel and responsive layout components.
