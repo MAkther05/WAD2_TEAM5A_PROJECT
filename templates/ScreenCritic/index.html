@@ -5,8 +5,6 @@
 {% block title_block %}
 <title>Home - ScreenCritic</title>
 <link rel="stylesheet" href="{% static 'css/index.css' %}?v=1">
-<script src="{% static 'js/carousel.js' %}"></script>
-<script src="{% static 'js/notifications.js' %}"></script>
 {% endblock %}
 
 
@@ -19,44 +17,65 @@
 
 <h1>Top Reviews</h1>
 
-<!-- Custom Carousel -->
+<!-- Bootstrap Carousel -->
 
-<div class="carousel-container">
-    <div class="carousel-track">
+<div id="topReviewsCarousel" class="carousel slide" data-bs-ride="carousel">
+    <!-- Carousel Indicators -->
+    <div class="carousel-indicators">
         {% for review in top_reviews %}
-        <div class="carousel-item">
-            <a href="{% url review.media.type|route_name slug=review.media.slug %}">
-                <img src="{{ review.media.cover_image|resolve_image }}" alt="{{ review.media.title }}" loading="lazy">
-            </a>
-            <div class="review-content">
-                <a href="{% url review.media.type|route_name slug=review.media.slug %}">
-                    <h4>{{ review.media.title }}</h4>
-                </a>
-                <div class="review-header">
-                    <div class="review-user">
-                        <a href="{% url 'ScreenCritic:profile_by_username' username=review.user.username %}" class="profile-link">
-                            {% if review.user.userprofile.profile_picture %}
-                                <img src="{{ review.user.userprofile.profile_picture|resolve_image }}" class="profile-pic" alt="User Pic">
-                            {% else %}
-                                <img src="{% static 'images/default_profile.png' %}" class="profile-pic" alt="Default Pic">
-                            {% endif %}
-                            <span class="username-plain">{{ review.user.username }}</span>
-                        </a>
-                    </div>
-                    <span class="review-date">{{ review.date|date:"M d, Y" }}</span>
-                </div>
-                <div>Rated:
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                </div>
-                <p class="carousel-review">{{ review.review|truncatewords:15 }}</p>
-            </div>
-        </div>
+            <button type="button" data-bs-target="#topReviewsCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                {% if forloop.first %}class="active" aria-current="true"{% endif %} 
+                aria-label="Slide {{ forloop.counter }}">
+            </button>
         {% endfor %}
     </div>
-    <button class="carousel-btn prev">&#10094;</button>
-    <button class="carousel-btn next">&#10095;</button>
+
+    <!-- Carousel Items -->
+    <div class="carousel-inner">
+        {% for review in top_reviews %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <div class="review-slide">
+                    <a href="{% url review.media.type|route_name slug=review.media.slug %}">
+                        <img src="{{ review.media.cover_image|resolve_image }}" alt="{{ review.media.title }}" class="carousel-media-image">
+                    </a>
+                    <div class="review-content">
+                        <a href="{% url review.media.type|route_name slug=review.media.slug %}">
+                            <h4>{{ review.media.title }}</h4>
+                        </a>
+                        <div class="review-header">
+                            <div class="review-user">
+                                <a href="{% url 'ScreenCritic:profile_by_username' username=review.user.username %}" class="profile-link">
+                                    {% if review.user.userprofile.profile_picture %}
+                                        <img src="{{ review.user.userprofile.profile_picture|resolve_image }}" class="profile-pic" alt="User Pic">
+                                    {% else %}
+                                        <img src="{% static 'images/default_profile.png' %}" class="profile-pic" alt="Default Pic">
+                                    {% endif %}
+                                    <span class="username-plain">{{ review.user.username }}</span>
+                                </a>
+                            </div>
+                            <span class="review-date">{{ review.date|date:"M d, Y" }}</span>
+                        </div>
+                        <div>Rated:
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="carousel-review">{{ review.review|truncatewords:15 }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Carousel Controls -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#topReviewsCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#topReviewsCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
 </div>
 
     
