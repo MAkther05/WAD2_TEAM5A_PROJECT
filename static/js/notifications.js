@@ -12,16 +12,31 @@ function getMediaRoute(mediaType) {
     }
 }
 
+function getCsrfToken() {
+    return document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+}
+
 function markNotificationRead(subscriptionId, notificationItem) {
     fetch(`/ScreenCritic/notifications/${subscriptionId}/read/`, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json',
         }
-    }).then(() => {
-        // Add clicked class to show it's been read
-        notificationItem.classList.add('clicked');
-    });
+    })
+    .then(response => {
+        if (response.ok) {
+            // Add clicked class to show it's been read
+            notificationItem.classList.add('clicked');
+            // Store the read state in localStorage to persist between page loads
+            const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '{}');
+            readNotifications[subscriptionId] = true;
+            localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+        } else {
+            console.error('Failed to mark notification as read');
+        }
+    })
+    .catch(error => console.error('Error marking notification as read:', error));
 }
 
 function toggleNotifications() { //toggle notification dropdown visibility
@@ -40,13 +55,16 @@ document.addEventListener('click', function(event) {
 
 //fetch and display notifications when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Get stored read notifications
+    const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '{}');
+    
     fetch('/ScreenCritic/notifications/')
         .then(response => response.json())
         .then(data => {
             const notificationDropdown = document.getElementById('notificationDropdown');
             notificationDropdown.innerHTML = '';
 
-            if (data.notifications.length > 0) {
+            if (data.notifications && data.notifications.length > 0) {
                 // Add class if more than 3 notifications
                 if (data.notifications.length > 3) {
                     notificationDropdown.classList.add('has-many');
@@ -56,8 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.notifications.forEach(notification => {
                     const item = document.createElement('div');
                     item.className = 'notification-item';
-                    // Add clicked class if already read
-                    if (notification.read_by_user) {
+                    
+                    // Add clicked class if already read (either from server or local storage)
+                    if (notification.read_by_user || readNotifications[notification.subscription_id]) {
                         item.classList.add('clicked');
                     }
                     
@@ -67,13 +86,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     link.className = 'notification-link';
                     
                     // Mark notification as read when clicked
-                    link.addEventListener('click', (e) => {
-                        if (!notification.read_by_user) {
+                    if (!notification.read_by_user && !readNotifications[notification.subscription_id]) {
+                        link.addEventListener('click', function(e) {
                             markNotificationRead(notification.subscription_id, item);
-                        }
-                    });
+                        });
+                    }
 
-                    //add media thumbnail
                     const imgContainer = document.createElement('div');
                     imgContainer.className = 'notification-img';
                     const img = document.createElement('img');
@@ -82,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     img.onerror = function() {
                         this.src = '/static/images/logo.png';  // Fallback image if main image fails to load
                     };
+                    img.loading = 'lazy';
                     imgContainer.appendChild(img);
 
                     //add notification content (title, type, message)
@@ -91,7 +110,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="notification-title">${notification.media_title}</div>
                         <div class="notification-type">${notification.media_type}</div>
                         <div class="notification-message">New Release!</div>
-                        <div class="notification-date">${new Date(notification.notification_date).toLocaleDateString()}</div>
+                        <div class="notification-date">${new Date(notification.notification_date).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                        })}</div>
                     `;
 
                     //assemble notification item
@@ -107,5 +130,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 emptyMessage.textContent = 'No new notifications';
                 notificationDropdown.appendChild(emptyMessage);
             }
+        })
+        .catch(error => {
+            console.error('Error fetching notifications:', error);
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            notificationDropdown.innerHTML = '<div class="notification-empty">Error loading notifications</div>';
         });
 });

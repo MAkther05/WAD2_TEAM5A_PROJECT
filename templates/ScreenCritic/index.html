@@ -1,6 +1,5 @@
 {% extends "ScreenCritic/base.html" %}
 {% load static %}
-
 {% load custom_filters %}
 
 {% block title_block %}
@@ -27,7 +26,7 @@
         {% for review in top_reviews %}
         <div class="carousel-item">
             <a href="{% url review.media.type|route_name slug=review.media.slug %}">
-                <img src="{{ review.media.cover_image }}" alt="{{ review.media.title }}" loading="lazy">
+                <img src="{{ review.media.cover_image|resolve_image }}" alt="{{ review.media.title }}" loading="lazy">
             </a>
             <div class="review-content">
                 <a href="{% url review.media.type|route_name slug=review.media.slug %}">
@@ -37,7 +36,7 @@
                     <div class="review-user">
                         <a href="{% url 'ScreenCritic:profile_by_username' username=review.user.username %}" class="profile-link">
                             {% if review.user.userprofile.profile_picture %}
-                                <img src="{{ review.user.userprofile.profile_picture.url }}" class="profile-pic" alt="User Pic">
+                                <img src="{{ review.user.userprofile.profile_picture|resolve_image }}" class="profile-pic" alt="User Pic">
                             {% else %}
                                 <img src="{% static 'images/default_profile.png' %}" class="profile-pic" alt="Default Pic">
                             {% endif %}
@@ -69,7 +68,7 @@
         {% for media_item in trending_movies %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}"
+                <img src="{{ media_item.cover_image|resolve_image }}" alt="{{ media_item.title }}"
                     width="180"
                     height="270"
                     loading="lazy"
@@ -88,7 +87,7 @@
         {% for media_item in trending_shows %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}"
+                <img src="{{ media_item.cover_image|resolve_image }}" alt="{{ media_item.title }}"
                 width="180"
                 height="270"
                 loading="lazy"
@@ -107,7 +106,7 @@
         {% for media_item in trending_games %}
         <div class="media-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}"
+                <img src="{{ media_item.cover_image|resolve_image }}" alt="{{ media_item.title }}"
                 width="180"
                 height="270"
                 loading="lazy"
@@ -129,7 +128,7 @@
         {% for media_item in upcoming_media %}
         <div class="upcoming-item">
             <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}"
+                <img src="{{ media_item.cover_image|resolve_image }}" alt="{{ media_item.title }}"
                     loading="lazy"
                     class="media-image">
             </a>
@@ -141,11 +140,11 @@
                 <p><strong>Release Date:</strong> {{ media_item.release_date|date:"F d, Y" }}</p>
             </div>
             {% if user.is_authenticated %}
-            <button class="notify-btn" 
-                data-media-title="{{ media_item.title }}" 
-                data-release-date="{{ media_item.release_date }}">
-                🔔
-            </button>
+                <span class="notification-btn {% if media_item.usermediasubscription_set.all %}subscribed{% endif %}" 
+                      data-media-id="{{ media_item.media_id }}"
+                      data-media-title="{{ media_item.title }}">
+                    <i class="{% if media_item.usermediasubscription_set.all %}fa-solid{% else %}fa-regular{% endif %} fa-bell"></i>
+                </span>
             {% endif %}
         </div>
         {% empty %}
@@ -156,4 +155,5 @@
 </div>
 
 <script src="{% static 'js/carousel.js' %}?v=1"></script>
+<script src="{% static 'js/subscription.js' %}?v=1"></script>
 {% endblock %}

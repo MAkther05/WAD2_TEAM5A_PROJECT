@@ -213,7 +213,7 @@ nav {
 
 .notification-img {
     width: 50px;
-    height: 50px;
+    height: 75px;
     margin-right: 10px;
     flex-shrink: 0;
     overflow: hidden;  /* Ensure image doesn't overflow */
@@ -326,26 +326,24 @@ nav {
     transition: background-color 0.2s ease-in-out;
 }
 
+.search-item a {
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
 .search-item:hover {
     background-color: #f5f5f5;
 }
 
-.search-item a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: #222;
-    font-weight: 500;
-    width: 100%;
-    gap: 10px;
-}
-
 .search-thumb {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     object-fit: cover;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
 }
 
 /* Force circle for user profile thumbs */
@@ -356,14 +354,11 @@ nav {
 /* Force slight rectangle for media cover thumbs */
 .media-thumb {
     border-radius: 5px !important;
+    width: 40px;  /* Slightly larger for media thumbnails */
+    height: 60px;  /* Rectangular aspect ratio for media covers */
 }
 
 .media-type {
     font-size: 12px;
     color: #888;
-}
-
-/* Dropdown Menu Hover Effects */
-.notification-dropdown a:hover {
-    background-color: #f0f0f0;
 }

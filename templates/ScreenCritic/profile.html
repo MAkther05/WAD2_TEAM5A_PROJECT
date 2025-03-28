@@ -1,5 +1,6 @@
 {% extends "ScreenCritic/base.html" %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title_block %}
 <title>{{ user_profile.user.username }} - Profile</title>
@@ -11,7 +12,7 @@
     <!-- Sidebar with user info -->
     <div class="profile-sidebar">
         {% if user_profile.profile_picture %}
-            <img class="profile-img" src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
+            <img class="profile-img" src="{{ user_profile.profile_picture|resolve_image }}" alt="Profile Picture">
         {% else %}
             <img class="profile-img" src="{% static 'images/default_profile.png' %}" alt="Default Profile">
         {% endif %}
@@ -88,10 +89,10 @@
                                  {% elif review.media.type == 'Game' %}
                                     {% url 'ScreenCritic:game_detail' slug=review.media.slug %}
                                  {% endif %}">
-                            <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
+                            <img src="{{ review.media.cover_image|resolve_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
                         </a>
                     {% else %}
-                        <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
+                        <img src="{{ review.media.cover_image|resolve_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
                     {% endif %}
                     <!-- Review detail-->
                     <div class="review-content">
@@ -99,7 +100,7 @@
                         <div class="review-header">
                             <div class="review-user">
                                 {% if review.user.userprofile.profile_picture %}
-                                    <img src="{{ review.user.userprofile.profile_picture.url }}" class="profile-pic" alt="User Pic">
+                                    <img src="{{ review.user.userprofile.profile_picture|resolve_image }}" class="profile-pic" alt="User Pic">
                                 {% else %}
                                     <img src="{% static 'images/default_profile.png' %}" class="profile-pic" alt="Default Pic">
                                 {% endif %}
@@ -139,10 +140,10 @@
                                  {% elif review.media.type == 'Game' %}
                                     {% url 'ScreenCritic:game_detail' slug=review.media.slug %}
                                  {% endif %}">
-                            <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
+                            <img src="{{ review.media.cover_image|resolve_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
                         </a>
                     {% else %}
-                        <img src="{{ review.media.cover_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
+                        <img src="{{ review.media.cover_image|resolve_image }}" class="media-img" alt="{{ review.media.title }}" loading="lazy">
                     {% endif %}
                     <!-- Review content -->
                     <div class="review-content">
@@ -151,7 +152,7 @@
                             <div class="review-user">
                                 <a href="{% url 'ScreenCritic:profile_by_username' username=review.user.username %}" class="profile-link">
                                 {% if review.user.userprofile.profile_picture %}
-                                    <img src="{{ review.user.userprofile.profile_picture.url }}" class="profile-pic" alt="User Pic">
+                                    <img src="{{ review.user.userprofile.profile_picture|resolve_image }}" class="profile-pic" alt="User Pic">
                                 {% else %}
                                     <img src="{% static 'images/default_profile.png' %}" class="profile-pic" alt="Default Pic">
                                 {% endif %}
@@ -189,10 +190,10 @@
                                  {% elif media.type == 'Game' %}
                                     {% url 'ScreenCritic:game_detail' slug=media.slug %}
                                  {% endif %}">
-                            <img src="{{ media.cover_image }}" class="media-img" alt="{{ media.title }}" loading="lazy">
+                            <img src="{{ media.cover_image|resolve_image }}" class="media-img" alt="{{ media.title }}" loading="lazy">
                         </a>
                     {% else %}
-                        <img src="{{ media.cover_image }}" class="media-img" alt="{{ media.title }}" loading="lazy">
+                        <img src="{{ media.cover_image|resolve_image }}" class="media-img" alt="{{ media.title }}" loading="lazy">
                     {% endif %}
                     <div class="review-content">
                         <h4>{{ media.title }}</h4>

@@ -7,7 +7,7 @@ urlpatterns = [
     path('', views.home, name='home'),  
     path('home/', views.home, name='home'),
     path('login_register/', views.login_register, name = 'login_register'),
-    path('user_logout/', views.user_logout, name = "user_logout"),
+    path('logout/', views.user_logout, name = "user_logout"),
     path('delete_account/', views.deleteuser, name = 'delete_account'),
 
     
@@ -36,4 +36,5 @@ urlpatterns = [
 
     path('notifications/', views.get_notifications, name='get_notifications'),
     path('notifications/<int:subscription_id>/read/', views.mark_notification_read, name='mark_notification_read'),
+    path('toggle-subscription/<int:media_id>/', views.toggle_subscription, name='toggle_subscription'),
 ]

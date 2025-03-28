@@ -8,7 +8,8 @@ import requests
 import environ
 import random
 from datetime import datetime
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, timezone
+from django.utils import timezone as otimezone
 from django.contrib.auth.models import User
 from ScreenCritic.models import UserProfile, Media, Review, UserMediaSubscription, Genre, ReviewLike, UserFavouriteGenre
 
@@ -256,16 +257,23 @@ def create_users():
                 print(f"Created User: {username}")
 
 def create_subscriptions():
-    print("Creating Subscriptions...")
-    users = list(User.objects.all())
-    media_items = list(Media.objects.all())
-
-    for _ in range(100):  #creates 100 random subscriptions
-        user = random.choice(users)
-        media = random.choice(media_items)
-        UserMediaSubscription.objects.get_or_create(user=user, media=media)
-
-    print("Subscriptions Created.")
+    print("Creating Media Subscriptions...")
+    users = User.objects.all()
+    released_media = Media.objects.filter(release_date__lte=otimezone.now())
+    
+    for user in users:
+        selected_media = random.sample(list(released_media), 4)
+        for media in selected_media:
+            UserMediaSubscription.objects.get_or_create(
+                user=user,
+                media=media,
+                defaults={
+                    'is_released': True,
+                    'read_by_user': random.choice([True, False, False]),
+                    'notification_date': media.release_date
+                }
+            )
+        print(f"Created 4 subscriptions for user {user.username}")
 
 def fetch_tmdb_genres():
     print("Fetching Movie/TV Genres from TMDB...")

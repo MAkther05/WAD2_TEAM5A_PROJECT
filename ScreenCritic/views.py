@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 from .templatetags.custom_filters import route_name
+from .utils import resolve_image
 
 from .forms import (
     LoginForm,
@@ -29,13 +30,13 @@ from .models import (
     UserMediaSubscription
 )
 
-
 def home(request): #render the home page
     #get top rated reviews ordered by rating and likes
     top_reviews = Review.objects.annotate(like_count=Count('reviewlike')).order_by('-rating', '-like_count')[:25]
 
-    #get upcoming media ordered by release date
-    upcoming_media = Media.objects.filter(release_date__gt=now()).order_by('release_date')[:40]
+    #get upcoming media ordered by release date (starting from tomorrow)
+    tomorrow = timezone.now().date() + timezone.timedelta(days=1)
+    upcoming_media = Media.objects.filter(release_date__gte=tomorrow).order_by('release_date')[:40]
 
     #get trending movies based on average rating
     trending_movies = Media.objects.filter(type='Movie').annotate(
@@ -179,6 +180,29 @@ def media_detail(request, slug, media_type): #display detailed view of a specifi
     liked_reviews = set()
     if request.user.is_authenticated: #get user's liked reviews if authenticated
         liked_reviews = set(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True))
+    
+    # Check if user has reviewed this media
+    user_has_reviewed = False
+    if request.user.is_authenticated:
+        user_has_reviewed = Review.objects.filter(
+            user=request.user,
+            media=media
+        ).exists()
+
+    # Check if user is subscribed to this media
+    is_subscribed = False
+    if request.user.is_authenticated:
+        is_subscribed = UserMediaSubscription.objects.filter(
+            user=request.user,
+            media=media
+        ).exists()
+
+    # Get today and tomorrow's date for comparison
+    today = timezone.now().date()
+    tomorrow = today + timezone.timedelta(days=1)
+
+    # Check if media is future release
+    is_future_release = media.release_date.date() > tomorrow if media.release_date else False
 
     context = { #prepare context data for template
         'media': media,
@@ -188,7 +212,10 @@ def media_detail(request, slug, media_type): #display detailed view of a specifi
         'average_rating': average_rating,
         'text_reviews_count': text_reviews_count,
         'current_sort': sort_by,
-        'liked_reviews': liked_reviews
+        'liked_reviews': liked_reviews,
+        'user_has_reviewed': user_has_reviewed,
+        'is_subscribed': is_subscribed,
+        'is_future_release': is_future_release,
     }
     return render(request, 'ScreenCritic/title.html', context)
 
@@ -404,16 +431,6 @@ def live_search(request): #handle live search functionality
     user_matches = UserProfile.objects.filter(user__username__icontains=query)[:5] #search for users
     media_matches = Media.objects.filter(title__icontains=query)[:5] #search for media
 
-    def resolve_image(value, fallback): #helper function to resolve image URLs
-        if not value:
-            return fallback
-        value = str(value)
-        if value.startswith('http'):
-            return value
-        if hasattr(value, 'url'):
-            return value.url
-        return fallback
-
     results = { #prepare search results
         'users': [
             {
@@ -437,23 +454,25 @@ def live_search(request): #handle live search functionality
 
 def get_notifications(request): #handle fetching notifications for the current user
     if request.user.is_authenticated:
-        #get all released media notifications for the last 30 days
+        #get all released media notifications
         subscriptions = UserMediaSubscription.objects.filter(
             user=request.user,
-            is_released=True,
-            notification_date__gte=now() - timezone.timedelta(days=30)  #only show recent notifications
+            is_released=True
         ).order_by('-notification_date')  #most recent first
         
         #format notifications for frontend display
-        notifications = [{
-            'media_title': sub.media.title,
-            'media_type': sub.media.type,
-            'media_slug': sub.media.slug,
-            'cover_image': sub.media.cover_image if not sub.media.cover_image.url else f'/media/{sub.media.cover_image}' if sub.media.cover_image else '/static/images/logo.png',
-            'notification_date': sub.notification_date.strftime("%Y-%m-%d %H:%M:%S") if sub.notification_date else None,
-            'subscription_id': sub.id,
-            'read_by_user': sub.read_by_user  #include read status
-        } for sub in subscriptions]
+        notifications = []
+        for sub in subscriptions:
+            cover_image = resolve_image(sub.media.cover_image, '/static/images/logo.png')
+            notifications.append({
+                'media_title': sub.media.title,
+                'media_type': sub.media.type,
+                'media_slug': sub.media.slug,
+                'cover_image': cover_image,
+                'notification_date': sub.notification_date.strftime("%Y-%m-%d %H:%M:%S") if sub.notification_date else None,
+                'subscription_id': sub.id,
+                'read_by_user': sub.read_by_user
+            })
         
         return JsonResponse({'notifications': notifications})
     return JsonResponse({'notifications': []})
@@ -467,3 +486,37 @@ def mark_notification_read(request, subscription_id): #handle marking a notifica
         subscription.save()
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=400)
+
+@login_required
+def toggle_subscription(request, media_id):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+    
+    try:
+        media = Media.objects.get(media_id=media_id)
+        subscription, created = UserMediaSubscription.objects.get_or_create(
+            user=request.user,
+            media=media,
+            defaults={
+                'is_released': False,
+                'read_by_user': False,
+                'notification_date': None
+            }
+        )
+        
+        if not created:
+            subscription.delete()
+            is_subscribed = False
+        else:
+            is_subscribed = True
+            
+        return JsonResponse({
+            'status': 'success',
+            'is_subscribed': is_subscribed,
+            'message': 'Unsubscribed from notifications' if not is_subscribed else 'Subscribed to notifications'
+        })
+    except Media.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Media not found'}, status=404)
+    except Exception as e:
+        print(f"Error in toggle_subscription: {str(e)}")  # Add logging
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

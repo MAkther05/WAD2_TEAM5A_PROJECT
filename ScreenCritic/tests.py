@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import timedelta
 from ScreenCritic.models import Media, Review, ReviewLike, Genre, UserProfile, UserMediaSubscription, UserFavouriteGenre
 from ScreenCritic.forms import ProfileEditForm, LoginForm, RegisterForm, ReviewForm
 
@@ -63,7 +63,8 @@ class ReviewModelTest(TestCase):
             user=self.user,
             media=self.media,
             rating=5,
-            review="Great movie!"
+            review="Great movie!",
+            date=timezone.now()
         )
 
     def test_review_creation(self): #check if review is created with correct attributes
@@ -97,18 +98,16 @@ class ViewsTest(TestCase):
         self.genre = Genre.objects.create(name="Action")
         self.drama = Genre.objects.create(name="Drama")
         
-        now = timezone.now()
-        
         #create test upcoming media
         self.upcoming_movie = Media.objects.create(
             title="Future Movie",
             type="Movie",
-            release_date=now + timedelta(days=30)
+            release_date=timezone.now() + timezone.timedelta(days=30)
         )
         self.upcoming_game = Media.objects.create(
             title="Future Game",
             type="Game",
-            release_date=now + timedelta(days=15)
+            release_date=timezone.now() + timezone.timedelta(days=15)
         )
         
         #create test media
@@ -116,18 +115,18 @@ class ViewsTest(TestCase):
             title="Test Movie",
             type="Movie",
             description="Test Description",
-            release_date=now - timedelta(days=10),
+            release_date=timezone.now() - timezone.timedelta(days=10),
             creator="Test Director"
         )
         self.show = Media.objects.create(
             title="Test Show",
             type="TV Show",
-            release_date=now - timedelta(days=20)
+            release_date=timezone.now() - timezone.timedelta(days=20)
         )
         self.game = Media.objects.create(
             title="Test Game",
             type="Game",
-            release_date=now - timedelta(days=30)
+            release_date=timezone.now() - timezone.timedelta(days=30)
         )
         
         #add genres to media
@@ -140,13 +139,15 @@ class ViewsTest(TestCase):
             user=self.user,
             media=self.media,
             rating=5,
-            review="Great movie!"
+            review="Great movie!",
+            date=timezone.now()
         )
         self.review2 = Review.objects.create(
             user=self.user2,
             media=self.show,
             rating=4,
-            review="Good show!"
+            review="Good show!",
+            date=timezone.now()
         )
         
         #add likes to reviews
@@ -233,6 +234,81 @@ class ViewsTest(TestCase):
         self.assertIn('current_sort', response.context) #check if current sort is in context
         self.assertIn('liked_reviews', response.context) #check if liked reviews is in context
 
+    def test_media_detail_view_sorting(self): #check if media detail view handles different sort options correctly
+        self.client.login(username="testuser", password="testpass")
+        
+        #create additional reviews with different ratings and dates
+        Review.objects.create(
+            user=self.user2,
+            media=self.media,
+            rating=3,
+            review="Okay movie",
+            date=timezone.now() - timezone.timedelta(days=1)
+        )
+        
+        #test different sort options
+        sort_options = ['likes', 'username', 'recent', 'rating']
+        for sort_by in sort_options:
+            response = self.client.get(
+                reverse('ScreenCritic:movie_detail', kwargs={'slug': self.media.slug}),
+                {'sort': sort_by}
+            )
+            self.assertEqual(response.status_code, 200) #check if response status is correct
+            self.assertEqual(response.context['current_sort'], sort_by) #check if sort option is set correctly
+            
+            #verify sorting order
+            reviews = list(response.context['reviews'])
+            if sort_by == 'rating':
+                self.assertEqual(reviews[0].rating, 5) #highest rating first
+            elif sort_by == 'recent':
+                self.assertEqual(reviews[0].date, max(r.date for r in reviews)) #most recent first
+            elif sort_by == 'username':
+                self.assertEqual(reviews[0].user.username, min(r.user.username for r in reviews)) #alphabetical by username
+
+    def test_media_review_submission(self): #check if media review submission works correctly
+        self.client.login(username="testuser", password="testpass")
+        
+        #create a new media object for this test
+        new_media = Media.objects.create(
+            title="New Test Movie",
+            type="Movie",
+            description="New Test Description",
+            release_date=timezone.now(),
+            creator="New Test Director"
+        )
+        new_media.genres.add(self.genre)
+        
+        #submit review
+        response = self.client.post(
+            reverse('ScreenCritic:movie_review', kwargs={'slug': new_media.slug}),
+            {
+                'rating': 5,
+                'review': 'Great new movie!'
+            }
+        )
+        self.assertRedirects(response, reverse('ScreenCritic:movie_detail', kwargs={'slug': new_media.slug}))
+        
+        #verify review was created
+        review = Review.objects.get(user=self.user, media=new_media)
+        self.assertEqual(review.rating, 5)
+        self.assertEqual(review.review, 'Great new movie!')
+
+    def test_media_review_duplicate(self): #check if duplicate review submission is prevented
+        self.client.login(username="testuser", password="testpass")
+        
+        #try to submit another review for the same media
+        response = self.client.post(
+            reverse('ScreenCritic:movie_review', kwargs={'slug': self.media.slug}),
+            {
+                'rating': 4,
+                'review': 'Another review'
+            }
+        )
+        self.assertRedirects(response, reverse('ScreenCritic:movie_detail', kwargs={'slug': self.media.slug}))
+        
+        #verify only one review exists
+        self.assertEqual(Review.objects.filter(user=self.user, media=self.media).count(), 1)
+
     def test_like_review_view_authenticated(self): #check if like review view works for authenticated users
         self.client.login(username="testuser", password="testpass")
         response = self.client.post(reverse('ScreenCritic:like_review', kwargs={'review_id': self.review.review_id}))
@@ -306,7 +382,7 @@ class ViewsTest(TestCase):
 
     def test_user_logout_view(self): #check if logout view works correctly
         self.client.login(username="testuser", password="testpass")
-        response = self.client.get(reverse('ScreenCritic:logout'))
+        response = self.client.get(reverse('ScreenCritic:user_logout'))
         self.assertRedirects(response, reverse('ScreenCritic:home')) #check if redirects to home after logout
 
     def test_profile_view_authenticated(self): #check if profile view works for authenticated users
@@ -401,6 +477,121 @@ class ViewsTest(TestCase):
         self.assertEqual(len(data['users']), 0) #check if no users are returned
         self.assertEqual(len(data['media']), 0) #check if no media is returned
 
+    def test_get_notifications_authenticated(self): #check if get notifications works for authenticated users
+        self.client.login(username="testuser", password="testpass")
+        
+        #create test subscription with notification
+        subscription = UserMediaSubscription.objects.create(
+            user=self.user,
+            media=self.media,
+            is_released=True,
+            notification_date=timezone.now(),
+            read_by_user=False
+        )
+        
+        response = self.client.get(reverse('ScreenCritic:get_notifications'))
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertIn('notifications', data) #check if notifications are in response
+        self.assertEqual(len(data['notifications']), 1) #check if correct number of notifications is returned
+        
+        notification = data['notifications'][0]
+        self.assertEqual(notification['media_title'], self.media.title) #check if media title is correct
+        self.assertEqual(notification['media_type'], self.media.type) #check if media type is correct
+        self.assertEqual(notification['media_slug'], self.media.slug) #check if media slug is correct
+        self.assertFalse(notification['read_by_user']) #check if read status is correct
+
+    def test_get_notifications_unauthenticated(self): #check if get notifications handles unauthenticated users correctly
+        response = self.client.get(reverse('ScreenCritic:get_notifications'))
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertEqual(len(data['notifications']), 0) #check if no notifications are returned
+
+    def test_mark_notification_read_authenticated(self): #check if mark notification read works for authenticated users
+        self.client.login(username="testuser", password="testpass")
+        
+        #create test subscription
+        subscription = UserMediaSubscription.objects.create(
+            user=self.user,
+            media=self.media,
+            is_released=True,
+            notification_date=timezone.now(),
+            read_by_user=False
+        )
+        
+        response = self.client.post(reverse('ScreenCritic:mark_notification_read', kwargs={'subscription_id': subscription.id}))
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertEqual(data['status'], 'success') #check if status is success
+        
+        #verify notification was marked as read
+        subscription.refresh_from_db()
+        self.assertTrue(subscription.read_by_user) #check if read status was updated
+
+    def test_mark_notification_read_invalid_id(self): #check if mark notification read handles invalid subscription id correctly
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.post(reverse('ScreenCritic:mark_notification_read', kwargs={'subscription_id': 999}))
+        self.assertEqual(response.status_code, 404) #check if 404 is returned for invalid id
+
+    def test_mark_notification_read_unauthorized(self): #check if mark notification read handles unauthorized access correctly
+        self.client.login(username="testuser2", password="testpass2")
+        
+        #create subscription for different user
+        subscription = UserMediaSubscription.objects.create(
+            user=self.user,
+            media=self.media,
+            is_released=True,
+            notification_date=timezone.now(),
+            read_by_user=False
+        )
+        
+        response = self.client.post(reverse('ScreenCritic:mark_notification_read', kwargs={'subscription_id': subscription.id}))
+        self.assertEqual(response.status_code, 404) #check if 404 is returned for unauthorized access
+
+    def test_toggle_subscription_create(self): #check if toggle subscription creates new subscription correctly
+        self.client.login(username="testuser", password="testpass")
+        
+        response = self.client.post(reverse('ScreenCritic:toggle_subscription', kwargs={'media_id': self.media.media_id}))
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertEqual(data['status'], 'success') #check if status is success
+        self.assertTrue(data['is_subscribed']) #check if subscription was created
+        self.assertEqual(data['message'], 'Subscribed to notifications') #check if message is correct
+        
+        #verify subscription was created
+        self.assertTrue(UserMediaSubscription.objects.filter(user=self.user, media=self.media).exists())
+
+    def test_toggle_subscription_delete(self): #check if toggle subscription deletes existing subscription correctly
+        self.client.login(username="testuser", password="testpass")
+        
+        #create initial subscription
+        UserMediaSubscription.objects.create(
+            user=self.user,
+            media=self.media,
+            is_released=False,
+            read_by_user=False
+        )
+        
+        response = self.client.post(reverse('ScreenCritic:toggle_subscription', kwargs={'media_id': self.media.media_id}))
+        self.assertEqual(response.status_code, 200) #check if response status is correct
+        data = response.json()
+        self.assertEqual(data['status'], 'success') #check if status is success
+        self.assertFalse(data['is_subscribed']) #check if subscription was deleted
+        self.assertEqual(data['message'], 'Unsubscribed from notifications') #check if message is correct
+        
+        #verify subscription was deleted
+        self.assertFalse(UserMediaSubscription.objects.filter(user=self.user, media=self.media).exists())
+
+    def test_toggle_subscription_invalid_media(self): #check if toggle subscription handles invalid media id correctly
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.post(reverse('ScreenCritic:toggle_subscription', kwargs={'media_id': 999}))
+        self.assertEqual(response.status_code, 404) #check if 404 is returned for invalid media id
+
+    def test_toggle_subscription_invalid_method(self): #check if toggle subscription handles invalid request method correctly
+        self.client.login(username="testuser", password="testpass")
+        response = self.client.get(reverse('ScreenCritic:toggle_subscription', kwargs={'media_id': self.media.media_id}))
+        self.assertEqual(response.status_code, 400) #check if 400 is returned for invalid method
+
 class UserProfileModelTest(TestCase):
     def setUp(self): #setup test data before each test method
         #create test user
@@ -430,12 +621,18 @@ class UserMediaSubscriptionTest(TestCase):
         )
         self.subscription = UserMediaSubscription.objects.create(
             user=self.user,
-            media=self.media
+            media=self.media,
+            is_released=False,
+            read_by_user=False,
+            notification_date=timezone.now()
         )
 
     def test_subscription_creation(self): #check if subscription is created with correct attributes
         self.assertEqual(self.subscription.user, self.user) #check if user is correct
         self.assertEqual(self.subscription.media, self.media) #check if media is correct
+        self.assertFalse(self.subscription.is_released) #check if is_released is correct
+        self.assertFalse(self.subscription.read_by_user) #check if read_by_user is correct
+        self.assertIsNotNone(self.subscription.notification_date) #check if notification_date is set
 
     def test_subscription_str(self): #check if subscription is represented as a string correctly
         expected_str = f"{self.user.username} subscribed to {self.media.title}"

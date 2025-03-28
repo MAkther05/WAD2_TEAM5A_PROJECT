@@ -8,13 +8,23 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="title-page-container">
     <div class="media-main">
         <!-- LEFT SIDE: Image, Title, Rating Stats -->
         <div class="media-left">
-            <img src="{{ media.cover_image }}" alt="{{ media.title }}">
+            <img src="{{ media.cover_image|resolve_image }}" alt="{{ media.title }}">
             <div class="media-text">
-                <h1>{{ media.title }}</h1>
+                <div class="title-container">
+                    <h1>{{ media.title }}</h1>
+                    {% if user.is_authenticated and is_future_release %}
+                        <span class="notification-btn {% if is_subscribed %}subscribed{% endif %}" 
+                              data-media-id="{{ media.media_id }}"
+                              data-media-title="{{ media.title }}">
+                            <i class="{% if is_subscribed %}fa-solid{% else %}fa-regular{% endif %} fa-bell"></i>
+                        </span>
+                    {% endif %}
+                </div>
                 <p>by {{ media.creator|default:"Unknown" }}</p>
                 <div class="rating-summary">
                     {% for i in "12345" %}
@@ -34,7 +44,7 @@
                         {% if not user_has_reviewed %}
                             <a class="review-btn" href="{% url review_url slug=media.slug %}">Write a Review</a>
                         {% else %}
-                            <button class="review-btn" disabled>Already Reviewed</button>
+                            <a class="review-btn already-reviewed" href="#" onclick="return false;">Already Reviewed</a>
                         {% endif %}
                     {% else %}
                         <a class="review-btn" href="{% url 'ScreenCritic:login_register' %}?next={% url review_url slug=media.slug %}">Login to Review</a>
@@ -43,7 +53,6 @@
                     <p>No review link available</p>
                 {% endif %}
             {% endwith %}
-            
             </div>
         </div>
 
@@ -83,7 +92,7 @@
                             <div class="review-user">
                                 <a href="{% url 'ScreenCritic:profile_by_username' username=review.user.username %}" class="profile-link">
                                 {% if review.user.userprofile.profile_picture %}
-                                    <img src="{{ review.user.userprofile.profile_picture.url }}" alt="{{ review.user.username }}'s Profile Picture" class="profile-pic">
+                                    <img src="{{ review.user.userprofile.profile_picture|resolve_image }}" alt="{{ review.user.username }}'s Profile Picture" class="profile-pic">
                                 {% else %}
                                     <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Picture" class="profile-pic">
                                 {% endif %}
@@ -125,7 +134,7 @@
             {% for media_item in recommended_media %}
             <div class="recommended-item">
                 <a href="{% url media_item.type|route_name slug=media_item.slug %}">
-                    <img src="{{ media_item.cover_image }}" alt="{{ media_item.title }}">
+                    <img src="{{ media_item.cover_image|resolve_image }}" alt="{{ media_item.title }}">
                     <p>{{ media_item.title }}</p>
                 </a>
             </div>
@@ -136,4 +145,5 @@
 </div>
 
 <script src="{% static 'js/like.js' %}?v=1"></script>
+<script src="{% static 'js/subscription.js' %}?v=1"></script>
 {% endblock %}
