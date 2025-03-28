@@ -33,12 +33,15 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    position: relative;
 }
 
 /* Left Section (Logo + Links) */
 .nav-left {
     display: flex;
     align-items: center;
+    flex-wrap: nowrap;
 }
 
 .logo {
@@ -95,6 +98,13 @@ nav {
     display: flex;
     align-items: center;
     gap: 15px;
+    margin-left: auto;
+}
+
+/* Search Bar Container */
+.search-wrapper {
+    position: relative;
+    display: inline-block;
 }
 
 /* Search Bar */
@@ -110,6 +120,71 @@ nav {
     outline: none;
     border-color: #2c3e50;
     box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
+}
+
+/* Search Results Dropdown */
+#search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 8px;
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+}
+
+/* Search Result Items */
+#search-results a {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid #eee;
+}
+
+#search-results a:last-child {
+    border-bottom: none;
+}
+
+#search-results a:hover {
+    background-color: #f5f5f5;
+}
+
+#search-results img {
+    margin-right: 10px;
+}
+
+#search-results .user-thumb {
+    border-radius: 50% !important;
+    width: 40px;
+    height: 40px;
+}
+
+#search-results .media-thumb {
+    border-radius: 4px !important;
+    width: 40px;
+    height: 60px;
+}
+
+#search-results .result-info {
+    flex: 1;
+}
+
+#search-results .result-title {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+#search-results .result-type {
+    font-size: 12px;
+    color: #666;
 }
 
 /* Login Button */
@@ -143,6 +218,7 @@ nav {
 .notification-container {
     position: relative;
     display: inline-block;
+    margin: 0 10px;
 }
 
 .notification-bell {
@@ -176,17 +252,16 @@ nav {
 
 .notification-dropdown {
     display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;  /* Position right below the bell */
+    position: fixed;
+    top: 70px; /* Height of nav bar plus some padding */
+    right: 20px;
     background-color: white;
-    min-width: 300px;
-    max-width: 400px;
+    width: 300px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     border-radius: 4px;
     z-index: 1000;
-    max-height: 400px;  /* Set max height */
-    overflow-y: auto;  /* Enable vertical scrolling */
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
     border: 1px solid #ddd;
 }
 
@@ -295,13 +370,11 @@ nav {
 
 /* Profile Picture Styling */
 .profile-pic {
-    width: 35px !important;
-    height: 35px !important;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid #ccc;
-    margin-left: 15px;
-    transition: all 0.3s ease;
+    border: 2px solid white;
 }
 
 .profile-link {
@@ -312,26 +385,6 @@ nav {
 .profile-link:hover .profile-pic {
     border-color: #2c3e50;
     transform: scale(1.05);
-}
-
-.search-wrapper {
-    position: relative;
-}
-
-#search-results {
-    position: absolute;
-    top: 45px;
-    right: 0;
-    width: 350px;
-    background: #fff;
-    border: 2px solid #ccc;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    z-index: 999;
-    display: none;
-    max-height: 400px;
-    overflow-y: auto;
 }
 
 .search-category {
@@ -367,19 +420,172 @@ nav {
     width: 30px;
     height: 30px;
     object-fit: cover;
-    border-radius: 4px;
     margin-right: 10px;
+}
+
+/* Media thumbnails */
+.media-thumb {
+    width: 40px;
+    height: 60px;
+    border-radius: 4px;
+}
+
+/* User thumbnails */
+.user-thumb {
+    width: 40px;
+    height: 40px;
+}
+
+/* Add responsive navigation styles */
+@media screen and (max-width: 1024px) {
+    .search-bar {
+        width: 200px;
+    }
+
+    #search-results {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    nav {
+        padding: 10px 15px;
+    }
+
+    .logo {
+        height: 40px;
+        margin-right: 15px;
+    }
+
+    .nav-links {
+        gap: 15px;
+    }
+
+    .nav-links a {
+        font-size: 14px;
+    }
+
+    .search-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    .login-btn {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .notification-dropdown {
+        width: 280px;
+        right: 50%;
+        transform: translateX(50%);
+    }
+
+    .notification-item {
+        padding: 15px;
+    }
+
+    .nav-right {
+        position: relative;
+    }
+
+    #search-results {
+        width: 100%;
+        max-width: 300px;
+        left: 0;
+        transform: none;
+    }
+
+    #search-results .user-thumb {
+        width: 35px;
+        height: 35px;
+    }
+
+    #search-results .media-thumb {
+        width: 35px;
+        height: 52px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .nav-left {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .nav-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .search-wrapper {
+        max-width: 250px;
+        position: relative;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    .nav-links {
+        gap: 10px;
+    }
+
+    .nav-links a {
+        font-size: 12px;
+    }
+
+    .notification-dropdown {
+        width: calc(100vw - 40px);
+        max-width: 300px;
+        right: 50%;
+        transform: translateX(50%);
+        top: 120px; /* Account for wrapped nav on mobile */
+    }
+
+    #search-results {
+        width: 100%;
+        max-width: 250px;
+        left: 0;
+        transform: none;
+        top: 100%;
+    }
+
+    #search-results .user-thumb {
+        width: 30px;
+        height: 30px;
+    }
+
+    #search-results .media-thumb {
+        width: 30px;
+        height: 45px;
+    }
 }
 
 /* Force circle for user profile thumbs */
 .user-thumb {
     border-radius: 50% !important;
+    width: 40px;
+    height: 40px;
 }
 
 /* Force slight rectangle for media cover thumbs */
 .media-thumb {
-    border-radius: 5px !important;
-    width: 40px;  /* Slightly larger for media thumbnails */
+    border-radius: 4px !important;
+    width: 40px;
     height: 60px;  /* Rectangular aspect ratio for media covers */
 }
 

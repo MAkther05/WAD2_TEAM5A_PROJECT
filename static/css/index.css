@@ -155,16 +155,17 @@
     align-items: center;
 }
 
-.profile-pic {
-    width: 40px;
-    height: 40px;
+.review-user .profile-pic {
+    width: 30px;
+    height: 30px;
     object-fit: cover;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
 .username-plain {
     font-weight: bold;
+    font-size: 14px;
 }
 
 .review-date {
@@ -343,4 +344,146 @@
     cursor: pointer;
     padding: 10px;
     align-self: center;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
+    .page-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .left-section {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .right-section {
+        width: 100%;
+        min-width: unset;
+        height: auto;
+        margin-top: 20px;
+    }
+
+    .carousel-item {
+        min-width: 400px;
+        max-width: 400px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .page-container {
+        padding: 5px;
+    }
+
+    .left-section h1,
+    .media-section {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .carousel-container {
+        width: calc(100% - 20px);
+        margin: 10px;
+    }
+
+    .carousel-item {
+        min-width: 300px;
+        max-width: 300px;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .carousel-item img {
+        width: 150px;
+        height: 225px;
+        margin-bottom: 10px;
+    }
+
+    .media-item {
+        width: 140px;
+    }
+
+    .media-item img {
+        width: 140px;
+        height: 210px;
+    }
+
+    .media-item p {
+        max-width: 140px;
+        font-size: 14px;
+    }
+
+    .upcoming-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .upcoming-item img {
+        width: 140px;
+        height: 210px;
+        margin-bottom: 10px;
+    }
+
+    .upcoming-info {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .carousel-item {
+        min-width: 250px;
+        max-width: 250px;
+    }
+
+    .media-item {
+        width: 120px;
+    }
+
+    .media-item img {
+        width: 120px;
+        height: 180px;
+    }
+
+    .media-item p {
+        max-width: 120px;
+        font-size: 12px;
+    }
+
+    .upcoming-item img {
+        width: 120px;
+        height: 180px;
+    }
+
+    .review-content h4 {
+        font-size: 16px;
+    }
+
+    .carousel-review {
+        font-size: 12px;
+    }
+}
+
+/* Ensure smooth scrolling on mobile */
+.media-scroll {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.media-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* Improve touch targets on mobile */
+.carousel-btn {
+    padding: 15px;
+    font-size: 20px;
+}
+
+.notification-btn {
+    padding: 12px;
 }
