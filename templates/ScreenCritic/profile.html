@@ -90,7 +90,7 @@
         <div class="review-scroll">
             <!-- reviewed tab-->
             {% if active_tab == 'reviewed' %}
-                {% for review in reviewed_reviews %}
+                {% for review in page_obj %}
                 <div class="review-card">
                     <!-- Media image with lazy loading -->
                     {% if review.media.slug %}
@@ -139,9 +139,10 @@
                 {% empty %}
                 <p>No reviews yet.</p>
                 {% endfor %}
-                <!-- liked reviews tab-->
+
+            <!-- liked reviews tab-->
             {% elif active_tab == 'liked' %}
-                {% for review in liked_reviews %}
+                {% for review in page_obj %}
                 <div class="review-card">
                     <!-- liked media with lazy loading -->
                     {% if review.media.slug %}
@@ -190,9 +191,10 @@
                 {% empty %}
                 <p>No liked reviews yet.</p>
                 {% endfor %}
-                <!-- to-review reviews tab-->
+
+            <!-- to-review tab -->
             {% elif active_tab == 'to-review' %}
-                {% for media in to_review_media %}
+                {% for media in page_obj %}
                 <div class="review-card">
                     {% if media.slug %}
                         <a href="{% if media.type == 'TV Show' %}
@@ -217,9 +219,22 @@
                 {% endfor %}
             {% endif %}
         </div>
+
+        <!-- Pagination block for reviewed liked and to-review  -->
+        {% if active_tab == "reviewed" or active_tab == "liked" or active_tab == "to-review" %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a class="page-btn" href="?tab={{ active_tab }}&sort={{ current_sort }}&page={{ page_obj.previous_page_number }}">← Previous</a>
+            {% endif %}
+            <span class="page-number">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a class="page-btn" href="?tab={{ active_tab }}&sort={{ current_sort }}&page={{ page_obj.next_page_number }}">Next →</a>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </div>
-    <!-- Like button functionality -->
+<!-- Like button functionality -->
 <script src="{% static 'js/like.js' %}?v=3"></script>
 <script src="{% static 'js/sorting.js' %}?v=3"></script>
 {% endblock %}

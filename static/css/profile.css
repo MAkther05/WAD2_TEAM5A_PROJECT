@@ -343,4 +343,23 @@ main {
     .review-scroll {
         max-height: 500px;
     }
+
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .page-btn {
+      background: #e3f2fd;
+      padding: 6px 12px;
+      margin: 0 8px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      color: #0077cc;
+    }
+
+    .page-number {
+      font-weight: bold;
+}
 }
