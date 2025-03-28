@@ -32,7 +32,7 @@ from .models import (
 
 def home(request): #render the home page
     #get top rated reviews ordered by rating and likes
-    top_reviews = Review.objects.annotate(like_count=Count('reviewlike')).order_by('-rating', '-like_count')[:25]
+    top_reviews = Review.objects.annotate(like_count=Count('reviewlike')).order_by('-like_count','-rating')[:25]
 
     #get upcoming media ordered by release date (starting from tomorrow)
     tomorrow = timezone.now().date() + timezone.timedelta(days=1)
