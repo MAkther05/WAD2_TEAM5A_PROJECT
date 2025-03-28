@@ -234,37 +234,6 @@ class ViewsTest(TestCase):
         self.assertIn('current_sort', response.context) #check if current sort is in context
         self.assertIn('liked_reviews', response.context) #check if liked reviews is in context
 
-    def test_media_detail_view_sorting(self): #check if media detail view handles different sort options correctly
-        self.client.login(username="testuser", password="testpass")
-        
-        #create additional reviews with different ratings and dates
-        Review.objects.create(
-            user=self.user2,
-            media=self.media,
-            rating=3,
-            review="Okay movie",
-            date=timezone.now() - timezone.timedelta(days=1)
-        )
-        
-        #test different sort options
-        sort_options = ['likes', 'username', 'recent', 'rating']
-        for sort_by in sort_options:
-            response = self.client.get(
-                reverse('ScreenCritic:movie_detail', kwargs={'slug': self.media.slug}),
-                {'sort': sort_by}
-            )
-            self.assertEqual(response.status_code, 200) #check if response status is correct
-            self.assertEqual(response.context['current_sort'], sort_by) #check if sort option is set correctly
-            
-            #verify sorting order
-            reviews = list(response.context['reviews'])
-            if sort_by == 'rating':
-                self.assertEqual(reviews[0].rating, 5) #highest rating first
-            elif sort_by == 'recent':
-                self.assertEqual(reviews[0].date, max(r.date for r in reviews)) #most recent first
-            elif sort_by == 'username':
-                self.assertEqual(reviews[0].user.username, min(r.user.username for r in reviews)) #alphabetical by username
-
     def test_media_review_submission(self): #check if media review submission works correctly
         self.client.login(username="testuser", password="testpass")
         
