@@ -22,6 +22,7 @@ main {
     max-width: 1000px;
     margin: 30px auto;
     gap: 30px;
+    padding: 0 20px;
 }
 
 /* Sidebar with fixed width and clean spacing */
@@ -184,4 +185,125 @@ main {
 
 .username-plain {
     font-weight: bold;
+}
+
+/* Add responsive design */
+@media screen and (max-width: 1024px) {
+    .profile-container {
+        max-width: 800px;
+        gap: 20px;
+    }
+
+    .profile-sidebar {
+        flex: 0 0 220px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .profile-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        margin: 20px auto;
+    }
+
+    .profile-sidebar {
+        flex: none;
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 0;
+    }
+
+    .profile-main {
+        width: 100%;
+    }
+
+    .review-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 12px;
+    }
+
+    .media-img {
+        width: 120px;
+        height: 180px;
+        margin-bottom: 15px;
+    }
+
+    .review-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .review-user {
+        justify-content: center;
+    }
+
+    .tab-nav {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .tab-nav a {
+        margin-right: 0;
+        font-size: 14px;
+    }
+
+    .sort-form {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .profile-container {
+        padding: 0 10px;
+        margin: 15px auto;
+    }
+
+    .profile-sidebar {
+        padding: 15px;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .bio-box, .genre-box {
+        margin-top: 15px;
+    }
+
+    .review-card {
+        margin-bottom: 10px;
+    }
+
+    .media-img {
+        width: 100px;
+        height: 150px;
+    }
+
+    .review-content {
+        font-size: 14px;
+    }
+
+    .like-btn {
+        font-size: 18px;
+    }
+
+    .profile-pic {
+        width: 35px;
+        height: 35px;
+    }
+
+    .username-plain {
+        font-size: 14px;
+    }
+
+    .review-scroll {
+        max-height: 500px;
+    }
 }
