@@ -306,7 +306,7 @@ class ViewsTest(TestCase):
 
     def test_user_logout_view(self): #check if logout view works correctly
         self.client.login(username="testuser", password="testpass")
-        response = self.client.get(reverse('ScreenCritic:logout'))
+        response = self.client.get(reverse('ScreenCritic:user_logout'))
         self.assertRedirects(response, reverse('ScreenCritic:home')) #check if redirects to home after logout
 
     def test_profile_view_authenticated(self): #check if profile view works for authenticated users
