@@ -37,7 +37,7 @@
             <!-- Notification Bell -->
             {% if user.is_authenticated %}
             <div class="notification-container">
-                <img src="{% static 'images/bell.png' %}" alt="Notifications" class="notification-bell" onclick="toggleNotifications()">
+                <img src="{% static 'images/bell.png' %}" alt="Notifications" class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
                 <div id="notificationDropdown" class="notification-dropdown">
                     <!-- Notifications will be appended here -->
                 </div>
