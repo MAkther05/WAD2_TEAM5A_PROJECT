@@ -322,29 +322,23 @@ def user_logout(request): #handle user logout
     return redirect(reverse('ScreenCritic:home'))
 
 @login_required
-def profile_view(request, username=None): #display user profile
-    if username: #get user object
+def profile_view(request, username=None):
+    if username:
         user = get_object_or_404(User, username=username)
     else:
         user = request.user
 
-    user_profile = UserProfile.objects.filter(user=user).first() #get user profile
-    favorite_genres = UserFavouriteGenre.objects.filter(user=user) #get user's favorite genres
-    active_tab = request.GET.get("tab", "reviewed") #get active tab from request
-    sort_option = request.GET.get("sort", "rating-desc") #get sort option from request
+    user_profile = UserProfile.objects.filter(user=user).first()
+    favorite_genres = UserFavouriteGenre.objects.filter(user=user)
+    active_tab = request.GET.get("tab", "reviewed")
+    sort_option = request.GET.get("sort", "rating-desc")
 
-    if sort_option == "rating-asc": #determine sort order
-        order_by_field = "rating"
-    elif sort_option == "date-desc":
-        order_by_field = "-date"
-    elif sort_option == "date-asc":
-        order_by_field = "date"
-    else:
-        order_by_field = "-rating"
+    # Parse sort option
+    sort_field, sort_direction = sort_option.split('-') if '-' in sort_option else ('rating', 'desc')
+    
+    liked_review_ids = list(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True))
 
-    liked_review_ids = list(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True)) #get user's liked reviews
-
-    context = { #prepare initial context
+    context = {
         "user_profile": user_profile,
         "favorite_genres": favorite_genres,
         "active_tab": active_tab,
@@ -352,16 +346,33 @@ def profile_view(request, username=None): #display user profile
         "liked_reviews_ids": liked_review_ids,
     }
 
-    if active_tab == "to-review": #handle to-review tab
+    if active_tab == "to-review":
         user_genres = [fav.genre for fav in favorite_genres]
         to_review_media = Media.objects.filter(genres__in=user_genres).distinct().exclude(review__user=user)
         context["to_review_media"] = to_review_media
-    elif active_tab == "liked": #handle liked tab
-        liked_reviews = Review.objects.filter(reviewlike__user=user).order_by(order_by_field)
+    elif active_tab == "liked":
+        liked_reviews = Review.objects.filter(reviewlike__user=user)
+        if sort_field == 'likes':
+            liked_reviews = liked_reviews.annotate(like_count=Count('reviewlike')).order_by(
+                f"{'-' if sort_direction == 'desc' else ''}like_count")
+        elif sort_field == 'rating':
+            liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating")
+        else:  # date
+            liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}date")
         context["liked_reviews"] = liked_reviews
-    else: #handle reviewed tab
-        reviewed_reviews = Review.objects.filter(user=user).order_by(order_by_field)
+    else:  # reviewed
+        reviewed_reviews = Review.objects.filter(user=user)
+        if sort_field == 'likes':
+            reviewed_reviews = reviewed_reviews.annotate(like_count=Count('reviewlike')).order_by(
+                f"{'-' if sort_direction == 'desc' else ''}like_count")
+        elif sort_field == 'rating':
+            reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating")
+        else:  # date
+            reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}date")
         context["reviewed_reviews"] = reviewed_reviews
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'ScreenCritic/profile.html', context)
 
     return render(request, "ScreenCritic/profile.html", context)
 
