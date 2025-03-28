@@ -15,8 +15,7 @@ main {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 40px;
-  padding: 30px;
+  padding: 20px;
   background-color: #f2f2f2;
 }
 
@@ -24,16 +23,18 @@ main {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 40px;
-  padding: 30px;
+  gap: 30px;
+  padding: 20px;
   background-color: #f2f2f2;
   width: 100%;
-  flex: 1;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 /* LEFT PANEL */
 .edit-left {
-    width: 400px;
+    flex: 1;
+    max-width: 500px;
     background: white;
     padding: 20px;
     border-radius: 12px;
@@ -118,6 +119,110 @@ textarea, input[type="file"], select {
 
 /* RIGHT PANEL */
 .edit-right {
+    flex: 1;
     max-width: 400px;
     padding: 20px;
+}
+
+/* Add responsive design */
+@media screen and (max-width: 1024px) {
+    .edit-profile-wrapper {
+        max-width: 800px;
+        padding: 15px;
+        gap: 20px;
+    }
+
+    .edit-left {
+        max-width: 450px;
+    }
+
+    .edit-right {
+        max-width: 350px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    main {
+        padding: 15px;
+    }
+
+    .edit-profile-wrapper {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .edit-left {
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .edit-right {
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .profile-pic-container img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+    }
+
+    textarea, input[type="file"], select {
+        padding: 8px;
+    }
+
+    .genre-button {
+        padding: 5px 10px;
+        font-size: 13px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    main {
+        padding: 10px;
+    }
+
+    .edit-profile-wrapper {
+        padding: 5px;
+    }
+
+    .edit-left, .edit-right {
+        padding: 15px;
+    }
+
+    .profile-pic-container img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    textarea, input[type="file"], select {
+        padding: 6px;
+        font-size: 14px;
+    }
+
+    .selected-genres-container {
+        gap: 6px;
+    }
+
+    .genre-button {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .save-changes-btn {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    #word-count {
+        font-size: 11px;
+    }
 }
