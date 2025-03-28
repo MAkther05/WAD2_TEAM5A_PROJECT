@@ -60,18 +60,30 @@
             <a href="?tab=liked"{% if active_tab == 'liked' %} class="active"{% endif %}>Liked</a>
             <a href="?tab=to-review"{% if active_tab == 'to-review' %} class="active"{% endif %}>To-Review</a>
         </div>
-        <!-- Sort options for reviewed and liked -->
+
         {% if active_tab != 'to-review' %}
-        <form method="get" class="sort-form">
-            <input type="hidden" name="tab" value="{{ active_tab }}">
-            <label>SORT BY:</label>
-            <select name="sort" onchange="this.form.submit()">
-                <option value="rating-desc" {% if current_sort == 'rating-desc' %}selected{% endif %}>Top Rated</option>
-                <option value="rating-asc" {% if current_sort == 'rating-asc' %}selected{% endif %}>Low Rated</option>
-                <option value="date-desc" {% if current_sort == 'date-desc' %}selected{% endif %}>Newest</option>
-                <option value="date-asc" {% if current_sort == 'date-asc' %}selected{% endif %}>Oldest</option>
-            </select>
-        </form>
+        <div class="sort-header-container">
+            <div class="sort-header" data-sort="likes">
+                <span>Likes</span>
+                <span class="sort-arrow">
+                    {% if current_sort == 'likes-desc' %}▼{% elif current_sort == 'likes-asc' %}▲{% endif %}
+                </span>
+            </div>
+            <div class="sort-header" data-sort="rating">
+                <span>Rating</span>
+                <span class="sort-arrow">
+                    {% if current_sort == 'rating-desc' %}▼{% elif current_sort == 'rating-asc' %}▲{% endif %}
+                </span>
+            </div>
+            <div class="sort-header" data-sort="date">
+                <span>Date</span>
+                <span class="sort-arrow">
+                    {% if current_sort == 'date-desc' %}▼{% elif current_sort == 'date-asc' %}▲{% endif %}
+                </span>
+            </div>
+        </div>
+        <input type="hidden" id="current-sort" value="{{ current_sort }}">
+        <input type="hidden" name="tab" value="{{ active_tab }}">
         {% endif %}
 
         <!-- Scrollable review section -->
@@ -209,4 +221,5 @@
 </div>
     <!-- Like button functionality -->
 <script src="{% static 'js/like.js' %}?v=3"></script>
+<script src="{% static 'js/sorting.js' %}?v=3"></script>
 {% endblock %}
