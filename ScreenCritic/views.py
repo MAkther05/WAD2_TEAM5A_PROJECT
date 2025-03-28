@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET
 from .templatetags.custom_filters import route_name
 from .utils import resolve_image
+from django.core.paginator import Paginator
 
 from .forms import (
     LoginForm,
@@ -322,7 +323,7 @@ def user_logout(request): #handle user logout
     return redirect(reverse('ScreenCritic:home'))
 
 @login_required
-def profile_view(request, username=None):
+def profile_view(request, username=None):  # handle viewing a user profile (your own or others)
     if username:
         user = get_object_or_404(User, username=username)
     else:
@@ -330,20 +331,69 @@ def profile_view(request, username=None):
 
     user_profile = UserProfile.objects.filter(user=user).first()
     favorite_genres = UserFavouriteGenre.objects.filter(user=user)
+
+    # get tab (reviewed / liked / to-review), sort option, and pagination page number
     active_tab = request.GET.get("tab", "reviewed")
     sort_option = request.GET.get("sort", "rating-desc")
+    page_number = request.GET.get("page")
 
-    # Parse sort option
+    # split sort option
     sort_field, sort_direction = sort_option.split('-') if '-' in sort_option else ('rating', 'desc')
-    
+
+    # used to show heart icons for liked reviews
     liked_review_ids = list(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True))
 
+    # initialize all three review/media querysets
+    reviewed_reviews = Review.objects.filter(user=user)
+    liked_reviews = Review.objects.filter(reviewlike__user=user)
+    to_review_media = Media.objects.none()
+    page_obj = None  # this will hold the paginated results
+
+    # handle TO-REVIEW tab
+    if active_tab == "to-review":
+        user_genres = [fav.genre for fav in favorite_genres]
+        to_review_media = Media.objects.filter(genres__in=user_genres).distinct().exclude(review__user=user)
+        to_review_media = to_review_media.order_by("title")
+        paginator = Paginator(to_review_media, 20)  # paginate media (20 per page)
+        page_obj = paginator.get_page(page_number)
+
+    # handle LIKED tab
+    elif active_tab == "liked":
+        if sort_field == 'likes':
+            liked_reviews = liked_reviews.annotate(like_count=Count('reviewlike')).order_by(
+                f"{'-' if sort_direction == 'desc' else ''}like_count")
+        elif sort_field == 'rating':
+            liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating")
+        else:  # sort by date
+            liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}date")
+
+        paginator = Paginator(liked_reviews, 20)  # paginate liked reviews (20 per page)
+        page_obj = paginator.get_page(page_number)
+
+    # handle REVIEWED tab
+    else:
+        if sort_field == 'likes':
+            reviewed_reviews = reviewed_reviews.annotate(like_count=Count('reviewlike')).order_by(
+                f"{'-' if sort_direction == 'desc' else ''}like_count")
+        elif sort_field == 'rating':
+            reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating")
+        else:  # sort by date
+            reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}date")
+
+        paginator = Paginator(reviewed_reviews, 20)  # paginate reviewed reviews (20 per page)
+        page_obj = paginator.get_page(page_number)
+
+    # context to send to the profile template
     context = {
         "user_profile": user_profile,
         "favorite_genres": favorite_genres,
         "active_tab": active_tab,
         "current_sort": sort_option,
         "liked_reviews_ids": liked_review_ids,
+        "reviewed_reviews": reviewed_reviews,
+        "liked_reviews": liked_reviews,
+        "to_review_media": to_review_media,
+        "page_obj": page_obj,  # holds the paginated results for current tab
     }
 
     if active_tab == "to-review":
@@ -374,6 +424,7 @@ def profile_view(request, username=None):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'ScreenCritic/profile.html', context)
 
+    # otherwise, return full profile page
     return render(request, "ScreenCritic/profile.html", context)
 
 @login_required
