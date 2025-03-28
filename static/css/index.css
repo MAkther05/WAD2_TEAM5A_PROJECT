@@ -487,3 +487,248 @@
 .notification-btn {
     padding: 12px;
 }
+
+/* Bootstrap Carousel Styles */
+#topReviewsCarousel {
+    background: white;
+    border-radius: 8px;
+    margin: 20px 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-inner {
+    padding: 0;
+    position: relative;
+}
+
+.carousel-item {
+    transition: transform .6s ease-in-out;
+    padding: 20px;
+    position: relative;
+    display: none;
+}
+
+.carousel-item.active,
+.carousel-item-next,
+.carousel-item-prev {
+    display: block;
+}
+
+.review-slide {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Peek effect */
+.carousel-item-next:not(.carousel-item-start),
+.active.carousel-item-end {
+    transform: translateX(25%);
+    opacity: 0.3;
+}
+
+.carousel-item-prev:not(.carousel-item-end),
+.active.carousel-item-start {
+    transform: translateX(-25%);
+    opacity: 0.3;
+}
+
+.carousel-item-next.carousel-item-start,
+.carousel-item-prev.carousel-item-end,
+.carousel-item.active {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 15%;
+    opacity: 1;
+    background: none;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    padding: 1.5rem;
+}
+
+.carousel-media-image {
+    width: 180px;
+    height: 270px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.review-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review-content h4 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.review-content a {
+    text-decoration: none;
+    color: black;
+}
+
+.review-content h4:hover {
+    color: #3366ff;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.review-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.review-user .profile-pic {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.username-plain {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.review-date {
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.carousel-review {
+    font-size: 14px;
+    font-style: italic;
+    color: #555;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+}
+
+.carousel-indicators {
+    margin-bottom: -20px;
+}
+
+.carousel-indicators [data-bs-target] {
+    background-color: #666;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 0 4px;
+    opacity: 0.5;
+}
+
+.carousel-indicators .active {
+    opacity: 1;
+}
+
+/* Tablet Responsive */
+@media screen and (max-width: 1024px) {
+    .carousel-inner {
+        padding: 0 10%;
+    }
+
+    .review-slide {
+        max-width: 500px;
+    }
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 768px) {
+    #topReviewsCarousel {
+        margin: 10px;
+    }
+
+    .carousel-inner {
+        padding: 0;
+    }
+
+    .carousel-item:not(.active) {
+        display: none;
+    }
+
+    .review-slide {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .carousel-media-image {
+        width: 140px;
+        height: 210px;
+        margin-bottom: 1rem;
+    }
+
+    .review-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+    }
+
+    .review-user {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .review-date {
+        width: 100%;
+        text-align: center;
+    }
+
+    .carousel-review {
+        -webkit-line-clamp: 2;
+        text-align: center;
+    }
+}
+
+/* Small Mobile Responsive */
+@media screen and (max-width: 480px) {
+    .carousel-media-image {
+        width: 120px;
+        height: 180px;
+    }
+
+    .review-content h4 {
+        font-size: 16px;
+    }
+
+    .carousel-review {
+        font-size: 13px;
+    }
+}
