@@ -132,7 +132,7 @@
                             <span class="like-btn {% if review.review_id in liked_reviews_ids %}liked{% endif %}" data-review-id="{{ review.review_id }}">
                                 <i class="{% if review.review_id in liked_reviews_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
                             </span>
-                            <span id="like-count-{{ review.review_id }}">{{ review.reviewlike_set.count }}</span> Likes
+                            <span id="like-count-{{ review.review_id }}">{{ review.like_count }}</span>
                         </p>
                     </div>
                 </div>
@@ -183,7 +183,7 @@
                             <span class="like-btn liked" data-review-id="{{ review.review_id }}">
                                 <i class="fa-solid fa-heart"></i>
                             </span>
-                            <span id="like-count-{{ review.review_id }}">{{ review.reviewlike_set.count }}</span> Likes
+                            <span id="like-count-{{ review.review_id }}">{{ review.like_count }}</span>
                         </p>
                     </div>
                 </div>

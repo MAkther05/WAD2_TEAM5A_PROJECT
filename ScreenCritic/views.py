@@ -351,24 +351,24 @@ def profile_view(request, username=None):
         to_review_media = Media.objects.filter(genres__in=user_genres).distinct().exclude(review__user=user)
         context["to_review_media"] = to_review_media
     elif active_tab == "liked":
-        liked_reviews = Review.objects.filter(reviewlike__user=user)
+        liked_reviews = Review.objects.filter(reviewlike__user=user).annotate(like_count=Count('reviewlike'))
         if sort_field == 'likes':
-            liked_reviews = liked_reviews.annotate(like_count=Count('reviewlike')).order_by(
-                f"{'-' if sort_direction == 'desc' else ''}like_count")
+            liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}like_count",'-date')  # Secondary sort by date
         elif sort_field == 'rating':
-            liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating")
+            liked_reviews = liked_reviews.order_by(
+                f"{'-' if sort_direction == 'desc' else ''}rating",'-date'  )# Secondary sort by date
         else:  # date
             liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}date")
         context["liked_reviews"] = liked_reviews
     else:  # reviewed
-        reviewed_reviews = Review.objects.filter(user=user)
+        reviewed_reviews = Review.objects.filter(user=user).annotate(like_count=Count('reviewlike'))
         if sort_field == 'likes':
-            reviewed_reviews = reviewed_reviews.annotate(like_count=Count('reviewlike')).order_by(
-                f"{'-' if sort_direction == 'desc' else ''}like_count")
+            reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}like_count",'-date')
         elif sort_field == 'rating':
-            reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating")
+            reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating",'-date')
         else:  # date
             reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}date")
+        
         context["reviewed_reviews"] = reviewed_reviews
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
