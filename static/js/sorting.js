@@ -47,7 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (newContent) {
                 reviewSection.innerHTML = newContent.innerHTML;
                 updateArrows(sortValue);
-                // Reinitialize any JS plugins if needed
+                // Reinitialize like buttons
+                if (typeof window.initializeLikeButtons === 'function') {
+                    window.initializeLikeButtons();
+                }
             }
         })
         .catch(error => {
