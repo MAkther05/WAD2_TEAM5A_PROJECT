@@ -139,11 +139,13 @@
                 <p>{{ media_item.description|truncatewords:20|safe }}</p>
                 <p><strong>Release Date:</strong> {{ media_item.release_date|date:"F d, Y" }}</p>
             </div>
-            <button class="notify-btn" 
-                data-media-title="{{ media_item.title }}" 
-                data-release-date="{{ media_item.release_date }}">
-                🔔
-            </button>
+            {% if user.is_authenticated %}
+                <span class="notification-btn {% if media_item.usermediasubscription_set.all %}subscribed{% endif %}" 
+                      data-media-id="{{ media_item.media_id }}"
+                      data-media-title="{{ media_item.title }}">
+                    <i class="{% if media_item.usermediasubscription_set.all %}fa-solid{% else %}fa-regular{% endif %} fa-bell"></i>
+                </span>
+            {% endif %}
         </div>
         {% empty %}
         <p>No upcoming releases.</p>
@@ -153,4 +155,5 @@
 </div>
 
 <script src="{% static 'js/carousel.js' %}?v=1"></script>
+<script src="{% static 'js/subscription.js' %}?v=1"></script>
 {% endblock %}

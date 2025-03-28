@@ -1,4 +1,5 @@
 from django import template
+from ..utils import resolve_image as resolve_image_util
 
 register = template.Library()
 
@@ -26,23 +27,4 @@ def route_name_review(media_type):
 @register.filter
 def resolve_image(value, fallback='/static/images/logo.png'):
     """Resolve image URL from either ImageField or direct URL"""
-    if not value:
-        return fallback
-        
-    # Handle direct URLs
-    raw_value = str(value)
-    if raw_value.startswith('http'):
-        return raw_value
-        
-    # Handle ImageField objects
-    if hasattr(value, 'url'):
-        try:
-            url = value.url
-            # If the URL was stored as a full URL, extract it from the media path
-            if 'https%3A' in url:
-                return url.split('/media/')[-1].replace('%3A', ':')
-            return url
-        except ValueError:
-            pass
-            
-    return fallback
+    return resolve_image_util(value, fallback)

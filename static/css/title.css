@@ -34,9 +34,17 @@
     width: 100%;
 }
 
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
 .media-text h1 {
     font-size: clamp(20px, 2vw, 28px);
     margin-bottom: 10px;
+    display: inline;
 }
 
 .rating-summary {
@@ -64,6 +72,29 @@
     background-color: #cccccc;
     color: #666666;
     cursor: not-allowed;
+}
+
+.notification-btn {
+    cursor: pointer;
+    font-size: clamp(20px, 1.5vw, 24px);
+    transition: transform 0.2s ease, color 0.2s ease;
+    color: black;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px;
+}
+
+.notification-btn:hover {
+    transform: scale(1.2);
+    color: #ffd700;
+}
+
+.notification-btn.subscribed {
+    color: #ffd700;
+}
+
+.notification-btn i {
+    font-size: inherit;
 }
 
 /* RIGHT SIDE */

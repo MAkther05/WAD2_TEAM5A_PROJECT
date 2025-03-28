@@ -110,7 +110,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="notification-title">${notification.media_title}</div>
                         <div class="notification-type">${notification.media_type}</div>
                         <div class="notification-message">New Release!</div>
-                        <div class="notification-date">${new Date(notification.notification_date).toLocaleDateString()}</div>
+                        <div class="notification-date">${new Date(notification.notification_date).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                        })}</div>
                     `;
 
                     //assemble notification item

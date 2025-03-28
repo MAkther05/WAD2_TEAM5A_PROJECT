@@ -36,4 +36,5 @@ urlpatterns = [
 
     path('notifications/', views.get_notifications, name='get_notifications'),
     path('notifications/<int:subscription_id>/read/', views.mark_notification_read, name='mark_notification_read'),
+    path('toggle-subscription/<int:media_id>/', views.toggle_subscription, name='toggle_subscription'),
 ]
