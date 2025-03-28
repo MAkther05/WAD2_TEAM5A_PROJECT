@@ -57,6 +57,7 @@ document.addEventListener('click', function(event) {
 document.addEventListener('DOMContentLoaded', function() {
     // Get stored read notifications
     const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '{}');
+    const notificationBell = document.getElementById('notificationBell');
     
     fetch('/ScreenCritic/notifications/')
         .then(response => response.json())
@@ -68,6 +69,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Add class if more than 3 notifications
                 if (data.notifications.length > 3) {
                     notificationDropdown.classList.add('has-many');
+                }
+
+                // Check for unread notifications
+                const hasUnread = data.notifications.some(notification => 
+                    !notification.read_by_user && !readNotifications[notification.subscription_id]
+                );
+                
+                // Update bell state
+                if (hasUnread) {
+                    notificationBell.classList.add('has-unread');
+                } else {
+                    notificationBell.classList.remove('has-unread');
                 }
 
                 //create notification items for each notification

@@ -157,6 +157,23 @@ nav {
     transform: rotate(10deg);
 }
 
+/* Add styles for unread notifications */
+.notification-bell.has-unread {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 .notification-dropdown {
     display: none;
     position: absolute;
@@ -216,8 +233,12 @@ nav {
     height: 75px;
     margin-right: 10px;
     flex-shrink: 0;
-    overflow: hidden;  /* Ensure image doesn't overflow */
+    overflow: hidden;  /* Ensure image and alt text don't overflow */
     border-radius: 4px;
+    display: flex;  /* Added to contain alt text */
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;  /* Light background for failed images */
 }
 
 .notification-img img {
@@ -225,6 +246,10 @@ nav {
     height: 100%;
     object-fit: cover;  /* Ensure image covers the container */
     border-radius: 4px;
+    font-size: 10px;  /* Smaller font size for alt text */
+    text-align: center;  /* Center alt text */
+    word-break: break-word;  /* Break long alt text */
+    padding: 2px;  /* Space for alt text */
 }
 
 .notification-content {
