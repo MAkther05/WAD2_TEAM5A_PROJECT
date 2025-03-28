@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils.timezone import now
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q, Subquery, OuterRef
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.templatetags.static import static
@@ -156,30 +156,33 @@ def game_list(request): #display list of games and related game content
 
 def media_detail(request, slug, media_type): #display detailed view of a specific media item
     media = get_object_or_404(Media, slug=slug, type=media_type) #get media object or return 404
-    sort_by = request.GET.get('sort', 'default') #get sort parameter from request
+    sort_option = request.GET.get('sort', 'likes-desc') #get sort parameter from request
+    sort_field, sort_direction = sort_option.split('-') if '-' in sort_option else ('likes', 'desc')
 
-    reviews = Review.objects.filter(media=media).annotate( #get reviews for the media
-        likes_count=Count('reviewlike')).order_by('-likes_count', '-date')
+    reviews = Review.objects.filter(media=media).annotate(
+        likes_count=Count('reviewlike'))
 
-    if sort_by == 'likes': #sort reviews based on user preference
-        reviews = reviews.order_by('-likes_count', '-date')
-    elif sort_by == 'username':
-        reviews = reviews.order_by('user__username', '-date')
-    elif sort_by == 'recent':
-        reviews = reviews.order_by('-date')
-    elif sort_by == 'rating':
-        reviews = reviews.order_by('-rating', '-date')
+    # Apply sorting based on field and direction
+    if sort_field == 'likes':
+        sort_prefix = '-' if sort_direction == 'desc' else ''
+        reviews = reviews.order_by(f'{sort_prefix}likes_count', '-date')
+    elif sort_field == 'rating':
+        sort_prefix = '-' if sort_direction == 'desc' else ''
+        reviews = reviews.order_by(f'{sort_prefix}rating', '-date')
+    elif sort_field == 'date':
+        sort_prefix = '-' if sort_direction == 'desc' else ''
+        reviews = reviews.order_by(f'{sort_prefix}date')
 
-    rating_stats = reviews.aggregate(total_ratings=Count('rating'), average_rating=Avg('rating')) #calculate rating statistics
+    rating_stats = reviews.aggregate(total_ratings=Count('rating'), average_rating=Avg('rating'))
     total_ratings = rating_stats['total_ratings'] or 0
     average_rating = round(rating_stats['average_rating'] or 0,1)
     text_reviews_count = reviews.exclude(review__isnull=True).exclude(review__exact='').count()
 
-    recommended_media = Media.objects.filter(type=media_type).exclude(slug=slug).annotate( #get recommended media
+    recommended_media = Media.objects.filter(type=media_type).exclude(slug=slug).annotate(
         avg_rating=Avg('review__rating')).order_by('-avg_rating')[:20]
 
     liked_reviews = set()
-    if request.user.is_authenticated: #get user's liked reviews if authenticated
+    if request.user.is_authenticated:
         liked_reviews = set(ReviewLike.objects.filter(user=request.user).values_list('review_id', flat=True))
     
     # Check if user has reviewed this media
@@ -205,19 +208,24 @@ def media_detail(request, slug, media_type): #display detailed view of a specifi
     # Check if media is future release
     is_future_release = media.release_date.date() > tomorrow if media.release_date else False
 
-    context = { #prepare context data for template
+    context = {
         'media': media,
         'reviews': reviews,
         'recommended_media': recommended_media,
         'total_ratings': total_ratings,
         'average_rating': average_rating,
         'text_reviews_count': text_reviews_count,
-        'current_sort': sort_by,
+        'current_sort': sort_option,
         'liked_reviews': liked_reviews,
         'user_has_reviewed': user_has_reviewed,
         'is_subscribed': is_subscribed,
         'is_future_release': is_future_release,
     }
+
+    # If it's an AJAX request, return only the reviews section
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'ScreenCritic/title.html', context)
+
     return render(request, 'ScreenCritic/title.html', context)
 
 def like_review(request, review_id): #handle review like/unlike functionality
@@ -345,7 +353,7 @@ def profile_view(request, username=None):  # handle viewing a user profile (your
 
     # initialize all three review/media querysets
     reviewed_reviews = Review.objects.filter(user=user)
-    liked_reviews = Review.objects.filter(reviewlike__user=user)
+    liked_reviews = Review.objects.filter(reviewlike__user=user).distinct()
     to_review_media = Media.objects.none()
     page_obj = None  # this will hold the paginated results
 
@@ -359,11 +367,24 @@ def profile_view(request, username=None):  # handle viewing a user profile (your
 
     # handle LIKED tab
     elif active_tab == "liked":
+        # Get the total like count for each review
+        likes_subquery = ReviewLike.objects.filter(review=OuterRef('pk')).values('review').annotate(
+            count=Count('id')).values('count')
+        
+        # Get reviews that the user has liked
+        liked_reviews = Review.objects.filter(reviewlike__user=user).distinct().annotate(
+            like_count=Subquery(likes_subquery))
+        
         if sort_field == 'likes':
-            liked_reviews = liked_reviews.annotate(like_count=Count('reviewlike')).order_by(
-                f"{'-' if sort_direction == 'desc' else ''}like_count")
+            liked_reviews = liked_reviews.order_by(
+                f"{'-' if sort_direction == 'desc' else ''}like_count",
+                '-date'  # Always sort by date as secondary sort
+            )
         elif sort_field == 'rating':
-            liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating")
+            liked_reviews = liked_reviews.order_by(
+                f"{'-' if sort_direction == 'desc' else ''}rating",
+                '-date'
+            )
         else:  # sort by date
             liked_reviews = liked_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}date")
 
@@ -372,11 +393,24 @@ def profile_view(request, username=None):  # handle viewing a user profile (your
 
     # handle REVIEWED tab
     else:
+        # Get the total like count for each review
+        likes_subquery = ReviewLike.objects.filter(review=OuterRef('pk')).values('review').annotate(
+            count=Count('id')).values('count')
+        
+        # Get reviews written by the user
+        reviewed_reviews = Review.objects.filter(user=user).annotate(
+            like_count=Subquery(likes_subquery))
+        
         if sort_field == 'likes':
-            reviewed_reviews = reviewed_reviews.annotate(like_count=Count('reviewlike')).order_by(
-                f"{'-' if sort_direction == 'desc' else ''}like_count")
+            reviewed_reviews = reviewed_reviews.order_by(
+                f"{'-' if sort_direction == 'desc' else ''}like_count",
+                '-date'  # Always sort by date as secondary sort
+            )
         elif sort_field == 'rating':
-            reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}rating")
+            reviewed_reviews = reviewed_reviews.order_by(
+                f"{'-' if sort_direction == 'desc' else ''}rating",
+                '-date'
+            )
         else:  # sort by date
             reviewed_reviews = reviewed_reviews.order_by(f"{'-' if sort_direction == 'desc' else ''}date")
 

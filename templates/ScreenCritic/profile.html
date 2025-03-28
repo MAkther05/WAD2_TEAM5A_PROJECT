@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="profile-container">
     <!-- Sidebar with user info -->
     <div class="profile-sidebar">
@@ -236,5 +237,5 @@
 </div>
 <!-- Like button functionality -->
 <script src="{% static 'js/like.js' %}?v=3"></script>
-<script src="{% static 'js/sorting.js' %}?v=3"></script>
+<script src="{% static 'js/profile-sorting.js' %}?v=1"></script>
 {% endblock %}

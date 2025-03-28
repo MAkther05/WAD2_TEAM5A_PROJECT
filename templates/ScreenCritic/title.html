@@ -73,17 +73,28 @@
             <p><strong>Release Date:</strong> {{ media.release_date|date:"F d, Y" }}</p>
             <div class="reviews-section">
                 <h2>Community Ratings and Reviews</h2>
-                <div class="sort-options">
-                    <form method="get">
-                        SORT BY:
-                        <select name="sort" onchange="this.form.submit()">
-                            <option value="likes" {% if current_sort == 'likes' %}selected{% endif %}>Most Liked</option>
-                            <option value="username" {% if current_sort == 'username' %}selected{% endif %}>Username</option>
-                            <option value="recent" {% if current_sort == 'recent' %}selected{% endif %}>Most Recent</option>
-                            <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>Top Rated</option>
-                        </select>
-                    </form>
+                
+                <div class="sort-header-container">
+                    <div class="sort-header" data-sort="likes">
+                        <span>Likes</span>
+                        <span class="sort-arrow">
+                            {% if current_sort == 'likes-desc' %}▼{% elif current_sort == 'likes-asc' %}▲{% endif %}
+                        </span>
+                    </div>
+                    <div class="sort-header" data-sort="rating">
+                        <span>Rating</span>
+                        <span class="sort-arrow">
+                            {% if current_sort == 'rating-desc' %}▼{% elif current_sort == 'rating-asc' %}▲{% endif %}
+                        </span>
+                    </div>
+                    <div class="sort-header" data-sort="date">
+                        <span>Date</span>
+                        <span class="sort-arrow">
+                            {% if current_sort == 'date-desc' %}▼{% elif current_sort == 'date-asc' %}▲{% endif %}
+                        </span>
+                    </div>
                 </div>
+                <input type="hidden" id="current-sort" value="{{ current_sort }}">
 
                 <div class="reviews-scroll">
                     {% for review in reviews %}
@@ -119,8 +130,10 @@
                                 <i class="{% if review.review_id in liked_reviews %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
                             </span>
                             <span id="like-count-{{ review.review_id }}">{{ review.reviewlike_set.count }}</span> Likes
-                        </p>                           
+                        </p>
                     </div>
+                    {% empty %}
+                    <p>No reviews yet.</p>
                     {% endfor %}
                 </div>
             </div>
@@ -146,4 +159,5 @@
 
 <script src="{% static 'js/like.js' %}?v=1"></script>
 <script src="{% static 'js/subscription.js' %}?v=1"></script>
+<script src="{% static 'js/title-sorting.js' %}?v=1"></script>
 {% endblock %}
